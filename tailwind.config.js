@@ -1,12 +1,11 @@
 const plugin = require('tailwindcss/plugin')
 const colors = require('tailwindcss/colors') 
 module.exports = {
-  purge: false,
-  // purge: [
-  //   './src/**/*.html',
-  //   './src/**/*.vue',
-  //   './src/**/*.jsx',
-  // ],
+  purge: [
+    './src/**/*.html',
+    './src/**/*.vue',
+    './src/**/*.jsx',
+  ],
   theme: {
     fontFamily: {
       display: ['Barlow Condensed','Abel','Alice','Amethysta', 'sans-serif']
