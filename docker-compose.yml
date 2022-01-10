@@ -1,0 +1,15 @@
+version: '3'
+services:
+  web:
+    container_name: sav-vue
+    image: docker-vue
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/var/www
+      - /var/www/node_modules
+    environment:
+      - npm_config_unsafe_perm=true
+    ports:
+      - "8081:8080"

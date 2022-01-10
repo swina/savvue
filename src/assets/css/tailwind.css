@@ -1,0 +1,201 @@
+/**
+ * This injects Tailwind's base styles, which is a combination of
+ * Normalize.css and some additional base styles.
+ *
+ * You can see the styles here:
+ * https://github.com/tailwindcss/tailwindcss/blob/master/css/preflight.css
+ *
+ * If using `postcss-import`, use this import instead:
+ *
+ * @import "tailwindcss/preflight";
+ */
+@tailwind base;
+
+/**
+ * This injects any component classes registered by plugins.
+ *
+ * If using `postcss-import`, use this import instead:
+ *
+ * @import "tailwindcss/components";
+ */
+@tailwind components;
+
+body {
+  margin: 0;
+  padding:0;
+  @apply overflow-hidden;
+}
+
+.container {
+  width:1000px;
+  max-width:1000px;
+}
+
+td {
+  @apply p-0;
+  font-size:.6rem;
+}
+
+.btn-light {
+  @apply bg-gray-200 text-xs outline-none;
+}
+
+button {
+  @apply px-3 py-2 mr-1 rounded text-xs bg-gray-300 outline-none;
+}
+.button:hover {
+  @apply bg-gray-600 text-white;
+}
+.btn-green {
+  @apply bg-green-400 text-white;
+}
+.btn-green:hover {
+  @apply bg-green-500;
+}
+
+input[type="text"] {
+  @apply p-2 rounded border text-xs w-full;
+}
+
+input[type="password"] {
+  @apply p-2 rounded border text-xs w-full;
+}
+
+input[type="checkbox"] {
+  @apply text-2xl w-4 h-4;
+}
+
+
+select {
+  @apply p-1 rounded border text-xs w-full;
+}
+
+td > select {
+  @apply p-0 rounded border text-xs w-full;
+  font-size:.6rem;
+}
+
+
+.bg-grigio {
+  background: #e1e1e1;
+}
+
+.tagged {
+  @apply bg-gray-200 rounded p-1 mr-2;
+}
+
+.product-title {
+  @apply text-xl text-gray-500 font-bold;    
+}
+
+.product-category {
+  @apply text-xs;
+}
+
+
+@media screen and (max-width: 576px){
+  .mobile {
+    @apply hidden;
+  }
+}
+.collapsable {
+  transition: .4s ease-in-out;
+  display:none;
+}
+.collapse {
+  transition: max-height 1.8s ease-out;
+  display:block;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+
+.collapse-enter-active , .collapse-leave-active {
+  transition: height .5s;
+}
+
+.collapse-enter , .collapse-leave-to {
+  height: 100%;
+}
+
+.tech-slideshow {
+  height: 200px;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  transform: translate3d(0, 0, 0);
+}
+
+.tech-slideshow > div {
+  height: 200px;
+  width: 2526px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  transform: translate3d(0, 0, 0);
+}
+.tech-slideshow .mover-1 {
+  animation: moveSlideshow 12s linear infinite;
+}
+.tech-slideshow .mover-2 {
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+  background-position: 0 -200px;
+  animation: moveSlideshow 15s linear infinite;
+}
+.tech-slideshow:hover .mover-2 {
+  opacity: 1;
+}
+
+@keyframes moveSlideshow {
+  100% { 
+    transform: translateX(-66.6666%);  
+  }
+}
+
+/**
+ * Here you would add any of your custom component classes; stuff that you'd
+ * want loaded *before* the utilities so that the utilities could still
+ * override them.
+ *
+ * Example:
+ *
+ * .btn { ... }
+ * .form-input { ... }
+ *
+ * Or if using a preprocessor or `postcss-import`:
+ *
+ * @import "components/buttons";
+ * @import "components/forms";
+ */
+
+/**
+ * This injects all of Tailwind's utility classes, generated based on your
+ * config file.
+ *
+ * If using `postcss-import`, use this import instead:
+ *
+ * @import "tailwindcss/utilities";
+ */
+@tailwind utilities;
+
+/**
+ * Here you would add any custom utilities you need that don't come out of the
+ * box with Tailwind.
+ *
+ * Example :
+ *
+ * .bg-pattern-graph-paper { ... }
+ * .skew-45 { ... }
+ *
+ * Or if using a preprocessor or `postcss-import`:
+ *
+ * @import "utilities/background-patterns";
+ * @import "utilities/skew-transforms";
+ */
