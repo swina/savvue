@@ -9,7 +9,7 @@ import io from 'socket.io-client'
 import myapi from './api'
 import router from '../router'
  //'https://ovh.moodgiver.tk', 
-const socket = io( 'http://localhost:3030' ,{
+const socket = io( process.env.VUE_APP_APIURL ,{
   transports: ['websocket'],
   polling: {
     extraHeaders: {
