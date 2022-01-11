@@ -55,7 +55,7 @@
                         <td class="w-8 py-1 px-1 border-r uppercase">{{(skip)+index+1}}</td>
                         
                         <template v-for="(field,i) in columns.fields">
-                            <td class="py-0 px-1 border-r uppercase bg-opacity-50" :key="'col_' + index + '_' + i" v-if="!field.hide"  :style="field.key === 'ac_processo' ? stile(row.ac_colore,field.style):''">
+                            <td class="py-0 px-1 border-r uppercase bg-opacity-50" :key="'col_' + index + '_' + i" v-if="!field.hide"  :style="field.key === 'ac_processo' ? stile(row.colore,field.style):''">
                                 <span v-if="field.style === 'text'">{{ row[field.key] }}</span>
                                 <!-- <span v-if="field.type === 'text' && !field.format">{{row[field.key]}}</span>
                                 <span v-if="field.type === 'text' && field.format === 'date'">
