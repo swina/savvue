@@ -55,7 +55,7 @@
                         <td class="w-8 py-1 px-1 border-r uppercase">{{(skip)+index+1}}</td>
                         
                         <template v-for="(field,i) in columns.fields">
-                            <td class="py-0 px-1 border-r uppercase bg-opacity-50" :key="'col_' + index + '_' + i" v-if="!field.hide"  :style="field.key === 'ac_processo' ? stile(row.colore,field.style):''">
+                            <td class="py-0 px-1 border-r uppercase bg-opacity-50" :key="'col_' + index + '_' + i" v-if="!field.hide"  :style="field.key === 'ac_processo' ? stile(row.ac_colore,field.style):''">
                                 <span v-if="field.style === 'text'">{{ row[field.key] }}</span>
                                 <!-- <span v-if="field.type === 'text' && !field.format">{{row[field.key]}}</span>
                                 <span v-if="field.type === 'text' && field.format === 'date'">
@@ -87,9 +87,11 @@
                 <icon icon="arrow_forward_ios" class="text-xl" @click="skip+=limit"/>
             </div>
         </div>
+        <transition name="fade">
          <div class="w-1/4 mt-8 shadow-lg bg-gray-200">
             <CustomerStatus :id_cliente="id_cliente"/>
          </div>
+        </transition>
         <!-- <div class="fixed inset-0 flex justify-center items-center h-screen" v-if="loading">
             <div class="p-8 bg-white rounded-lg bg-opacity-75 flex flex-col items-center shadow">
                 Loading ...
@@ -216,6 +218,7 @@ export default {
             this.$api.service('status').find({query}).then ( response => {
                 this.$store.dispatch ( 'loading' )
                 this.status = response[0]
+                this.$store.dispatch ( 'setModel' , ['status' , Object.keys ( response[0][0] )] )
                 this.$store.dispatch ( 'setStatus' , response[0] )
             })
         },

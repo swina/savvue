@@ -47,8 +47,8 @@ export default {
   beforeMount(){
     this.$api.authenticate()
       .then ( response => {
-        this.$store
-        console.log ( 'Authenticated')
+        this.$store.dispatch('SetUser',response.user)
+        this.$store.dispatch('SetLogged',true)
         this.$api.service('agenti').find().then ( result => {
           this.$store.dispatch ( 'setAgenti' , result )
         })

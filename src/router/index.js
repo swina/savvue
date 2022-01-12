@@ -30,7 +30,7 @@ const routes = [
     name: 'clienti',
     component: Clienti,
     meta: {
-      title: 'Gestione Clienti'
+      title: 'Clienti'
     }
   },
   {

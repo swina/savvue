@@ -42,14 +42,14 @@
             
         </table>
 
-        <div v-if="notfound" class="w-full">
+        <!-- <div v-if="!dataset.length" class="w-full">
             <div class="w-1/2 mt-2 m-auto bg-red-300 border rounded p-12">
                 <h2>Nessun record soddisfa la condizione di ricerca</h2>
             </div>
-        </div>
+        </div> -->
 
 
-        <div class="w-full flex flex-row mt-2 items-center text-xs text-left">
+        <div v-if="dataset" class="w-full flex flex-row mt-2 items-center text-xs text-left">
             <button class="btn-light mr-2 hover:bg-gray-500 text-xs p-0" @click="$store.getters.skip>0?prevPage():null"><i class="material-icons">keyboard_arrow_left</i></button>
             <button class="btn-light mr-2 hover:bg-gray-500 text-xs p-0" @click="nextPage"><i class="material-icons">keyboard_arrow_right</i></button>
             <button class="btn-light mr-2">Record {{$store.getters.skip+1}}-{{$store.getters.skip+20}} di {{dataset.total}}</button>
@@ -70,6 +70,8 @@
             <button class="text-xs ml-2" @click="searchData"><i class="material-icons text-sm">search</i></button>
             <button class="text-xs ml-2" @click="resetData">Annulla</button>
         </div>
+
+        <div v-else>Nessun record trovato!</div>
 
         <div v-if="edit" class="w-full md:w-1/2 fixed top-0 right-0 h-screen border p-2 bg-gray-200">
             <div class="w-full flex flex-row justify-end">
@@ -149,10 +151,21 @@ export default {
                     $sort : this.$store.getters.clienti_sort
                 }
             }
+            if ( this.$attrs.params ){
+                 query.query['params'] = this.$attrs.params
+            }
+            console.log ( query )
             this.$store.dispatch ( 'loading' )
             this.$api.service(this.service).find(query).then ( response => {
-                this.dataset = response
+                if ( this.service != 'status' ){
+                    this.dataset = response
+                } else {
+                    this.dataset = response[0]
+                }
                 this.$store.dispatch ( 'loading' )
+            }).catch ( error =>{
+                this.$store.dispatch ( 'loading' )
+                console.log ( error )
             })
         },
         searchData(){
@@ -168,6 +181,7 @@ export default {
             let query = {
                 query : qry
             }
+            console.log ( query )
             this.$store.dispatch ( 'loading' )
             this.$api.service(this.service).find(query).then ( response => {
                 this.dataset = response

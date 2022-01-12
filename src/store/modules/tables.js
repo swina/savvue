@@ -69,7 +69,12 @@ const tables = {
         },
         agenti: null,
         processi: null,
-        gruppi: null
+        gruppi: null,
+        models: {
+            status : null,
+            clienti: null,
+            agenti: null
+        }
     },
     mutations: {
         agenti(state,agenti){
@@ -83,6 +88,9 @@ const tables = {
         },
         gruppi ( state , gruppi ){
             state.gruppi = gruppi
+        },
+        models ( state , [ table , payload ] ){
+            state.models[table] = payload
         }
     },
     actions: {
@@ -98,6 +106,9 @@ const tables = {
         setGruppi ( { commit } , payload ){
             commit ( 'gruppi' , payload )
         },
+        setModel ( { commit } , [table,payload] ){
+            commit ( 'models' , [table,payload] )
+        }
     }
 
 }

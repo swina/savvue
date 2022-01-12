@@ -84,7 +84,7 @@ export default {
                 console.log ( response )
                 this.index = -1
                 this.cliente = response[0]
-                this.index = this.cliente.length -1
+                this.index = 0//this.cliente.length -1
                 this.selectedProcess = this.cliente[this.index].id_processo
                 this.actionDate = this.cliente[this.index].data_status 
                 this.actionTime = this.cliente[this.index].ora_status

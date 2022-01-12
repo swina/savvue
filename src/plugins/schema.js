@@ -72,6 +72,53 @@ const schema = {
                 searchable: true
             },
         ]
+    },
+    alerts : {
+        fields: [
+            { 
+                key: 'id_persona',
+                label: 'ID',
+                type: 'text',
+                hide: true,
+                editable: false,
+                searchable: false
+            },
+            { 
+                key: 'ac_cognome',
+                label: 'Cognome',
+                type: 'text',
+                view: true,
+                editable: true,
+                searchable: true
+            },
+            {
+                key: 'data_status',
+                label: 'Data',
+                type: 'text',
+                view: true,
+                editable: false,
+                searchable: false
+            },
+            {
+                key: 'ora_status',
+                label: 'Ora',
+                type: 'text',
+                view: true,
+                editable: false,
+                searchable: false
+            },
+            {
+                key: 'id_processo',
+                label: 'Azione',
+                type: 'relation',
+                subset: 'data',
+                display: 'ac_processo',
+                id: 'id_processo',
+                view: true,
+                editable: false,
+                searchable: false
+            }
+        ]
     }
 }
 
