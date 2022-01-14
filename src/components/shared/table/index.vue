@@ -1,16 +1,16 @@
 <template>
-    <div class="w-full p-2  pb-20" style="padding-bottom:10rem;" v-if="dataset">
+    <div class="relative w-full p-2 overflow-auto" v-if="dataset">
         <table class="w-full border border-gray-800 text-left text-xs min-h-100">
             <thead class="text-xs py-2 bg-gray-500 text-white uppercase">
                 <th class="border-b border-r px-1 py-2 border-r">#</th>
                 <template v-for="(field,i) in columns">
                     <th class="border-r px-1" v-if ="!field.hide && field.view" :key="'head_' + field.key + '_' + i">{{field.label}}</th>
                 </template>
-                <th></th>
+                <!-- <th></th> -->
             </thead>
             <template v-for="(row,index) in dataset.data">
-                <tr :key="'row_' + index" :class="'cursor-pointer hover:bg-gray-400 ' + striped(index)"  @click="$emit('selected',row),selectedRow=index">
-                    <td class="w-12 py-1 px-1 border-r uppercase">{{($store.getters.skip)+index+1}}</td>
+                <tr :key="'row_' + index" :class="'cursor-pointer hover:bg-gray-300 ' + striped(index)"  @click="$emit('selected',row),selectedRow=index">
+                    <td class="w-12 py-1 px-1 border-r uppercase">{{(skip)+index+1}}</td>
                     <template v-for="(field,i) in columns">
                         <td v-if="!field.hide && field.view" class="py-0 px-1 border-r" :class="field.class?field.class:'uppercase'" :key="'col_' + index + '_' + i">
                             <span v-if="field.type === 'text' && !field.format">{{row[field.key]}}</span>
@@ -21,7 +21,6 @@
                                  {{getRelation(field.relation,field.id,row[field.key],field)}}
                             </span>
                             <span v-if="field.type === 'boolean'">
-                                {{ field.key }}
                                 <i class="material-icons" v-if="field.default?row[field.key]>0:row[field.key]===1">done</i>
                             </span>
                             <span v-if="field.type === 'checkbox'">
@@ -34,9 +33,14 @@
                                 </template>
                             </select>
                             <img v-if="field.type === 'list_icon'"  :title="$store.getters[field.list].label[row[field.key]]" :src="$store.getters[field.list].icon[row[field.key]]"/>
+                            <div v-if="field.type === 'color'" class="w-5 h-5 rounded-full border shadow-lg" :style="'background-color:' + row[field.key]" :title="row[field.key]"></div>
+                            <div v-if="field.type === 'array'">
+                                {{ row[field.key] }}
+                                {{ row[field.key].split(',')[field.index] }}
+                            </div>
                         </td>
                     </template>
-                    <td class="px-2"><i class="material-icons text-xs"  @click="$emit('selected',row)">edit</i></td>
+                    <!-- <td class="px-2"><i class="material-icons text-xs"  @click="$emit('selected',row)">edit</i></td> -->
                 </tr>
             </template>
             
@@ -49,11 +53,19 @@
         </div> -->
 
 
-        <div v-if="dataset" class="w-full flex flex-row mt-2 items-center text-xs text-left">
-            <button class="btn-light mr-2 hover:bg-gray-500 text-xs p-0" @click="$store.getters.skip>0?prevPage():null"><i class="material-icons">keyboard_arrow_left</i></button>
+        <div v-if="dataset && pagination" class="w-full flex flex-row mt-2 items-center text-xs text-left">
+            <button class="btn-light mr-2 hover:bg-gray-500 text-xs p-0" @click="skip>0?prevPage():null"><i class="material-icons">keyboard_arrow_left</i></button>
             <button class="btn-light mr-2 hover:bg-gray-500 text-xs p-0" @click="nextPage"><i class="material-icons">keyboard_arrow_right</i></button>
-            <button class="btn-light mr-2">Record {{$store.getters.skip+1}}-{{$store.getters.skip+20}} di {{dataset.total}}</button>
-            <button class="btn-light">Pagina {{parseInt($store.getters.skip/20)+1}} di {{parseInt(dataset.total/20)+1}}</button>
+            <button class="btn-light mr-2">Record {{skip+1}}-{{skip+20}} di {{dataset.total}}</button>
+            <button class="btn-light">Pagina {{parseInt(skip/20)+1}} di {{parseInt(dataset.total/20)+1}}</button>
+            <icon v-if="download" icon="download" title="Scarica CSV" @click="downloadCSV"/>
+            <download-csv
+                v-if="json_data"
+                class   = "btn cursor-pointer btn-blue"
+                :data   = "json_data"
+                name    = "filename.csv">
+                Scarica
+            </download-csv>
             <label>Cerca</label>
             <select v-model="search" class="mx-2 w-1/5">
                 <template v-for="(field,i) in columns">
@@ -70,8 +82,8 @@
             <button class="text-xs ml-2" @click="searchData"><i class="material-icons text-sm">search</i></button>
             <button class="text-xs ml-2" @click="resetData">Annulla</button>
         </div>
-
-        <div v-else>Nessun record trovato!</div>
+<!-- 
+        <div v-if="!dataset.length">Nessun record trovato!</div> -->
 
         <div v-if="edit" class="w-full md:w-1/2 fixed top-0 right-0 h-screen border p-2 bg-gray-200">
             <div class="w-full flex flex-row justify-end">
@@ -85,12 +97,17 @@
 
 <script>
 import { mapState } from 'vuex'
+import schema from '@/plugins/schema'
 export default {
     name: 'UiTable',
     data:()=>({
         edit: false,
         dataset:null,
+        pagination: true,
+        download:true,
+        json_data: null,
         skip: 0,
+        limit:20,
         selectedRow: -1,
         search:'',
         searchRelation: '',
@@ -101,12 +118,16 @@ export default {
         notfound: false
     }),
     props: {
-        service : { type: String , required: true , default: 'clienti' },
+        table: { type: String , required: false , default: '' },
+        service : { type: String , required: false , default: 'clienti' },
         sort : { type: String , required: false, default : '' },
-        columns: { type: Array, required: true , default:()=>[] }
+        //columns: { type: Array, required: true , default:()=>[] }
     },
     computed:{
-        ...mapState ( ['tables'] )
+        ...mapState ( ['tables'] ),
+        columns(){
+            return schema[this.table||this.service].fields
+        }
     },
     watch:{
         search ( value ){
@@ -122,7 +143,8 @@ export default {
     },
     methods:{
         striped(i){
-            return i % 2 ? this.selectedRow === i  ? 'bg-blue-300' : 'bg-gray-200' : ''
+            return this.selectedRow === i ? 'bg-blue-300' : 
+                 i % 2 ? 'bg-gray-200' : ''
         },
         colOutput(col,value){
             if ( col === 'bl_attivo' ){
@@ -130,8 +152,6 @@ export default {
             }
         },
         getRelation(table,field,value,column){
-            console.log ( column )
-            //let data = this.$store.getters[table]
             let data = this.tables[column.relation]
             if ( data ){
                 let x = data[column.subset].filter ( d => {
@@ -142,19 +162,19 @@ export default {
             return null
         },
         getData(){
+            
             let vm = this
             this.notfound = false
             let query = {
                 query : { 
-                    $limit: 20,
-                    $skip : this.$store.getters.skip,
-                    $sort : this.$store.getters.clienti_sort
+                    $limit: this.limit,
+                    $skip : this.skip,
+                    $sort : schema[this.service||this.table].sort
                 }
             }
             if ( this.$attrs.params ){
                  query.query['params'] = this.$attrs.params
             }
-            console.log ( query )
             this.$store.dispatch ( 'loading' )
             this.$api.service(this.service).find(query).then ( response => {
                 if ( this.service != 'status' ){
@@ -190,19 +210,35 @@ export default {
             })
         },
         nextPage(){
-            this.$store.dispatch ( 'SetSkip' , parseInt(this.$store.getters['skip']) + 20 )
+            this.skip = this.skip + 20
+            //this.$store.dispatch ( 'SetSkip' , parseInt(this.$store.getters['skip']) + 20 )
             this.search && this.searchValue ? this.searchData() : this.getData()
         },
         prevPage(){
-            this.$store.dispatch ( 'SetSkip' , parseInt(this.$store.getters['skip']) - 20 )
+            //this.$store.dispatch ( 'SetSkip' , parseInt(this.$store.getters['skip']) - 20 )
+            this.skip = this.skip-20
             this.search && this.searchValue ? this.searchData() : this.getData()
         },
         resetData(){
-            this.getData()
+            this.skip = 0
+            this.search = ''
+            this.searchValue = ''
+            return this.table ? this.dataset = this.tables[this.table] : this.getData()
+        },
+        downloadCSV(){
+            if ( ! this.$attrs.csv ) 
+                this.json_data = JSON.stringify(this.dataset.data)
+
+            if ( this.$attrs.csv )
+                this.json_data = JSON.stringify(this.tables[this.$attrs.csv].data )
         }
     },
     mounted(){
-        this.getData()
+        if ( !this.$attrs.pagination ) this.pagination = false 
+        if ( this.$attrs.sort ){
+            this.$store.dispatch ( 'set')
+        }
+        return this.table ? this.dataset = this.tables[this.table] : this.getData()
     }
 }
 </script>

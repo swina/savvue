@@ -13,6 +13,7 @@
                             {{ !field.simple ? option[field.display] : option }} 
                         </option>
                     </select>
+                    <input v-if="field.type === 'color'" type="color" class="w-8 h-8 rounded-full border shadow-lg" v-model="record[field.key]"/>
                 </div>
             </template>
         </div>

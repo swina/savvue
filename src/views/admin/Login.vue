@@ -1,7 +1,8 @@
 <template>
     <div class="w-full bg-gray-700 h-screen flex">
-        <div class="w-1/3 flex flex-col  m-auto border rounded">
-            <div class="title bg-blue-300 text-gray-800">Login</div>
+        <div class="w-full md:w-1/4 flex flex-col  m-auto border rounded">
+            <img class="m-auto" src="img/logo.png"/>
+            <div class="m-auto">Login</div>
             <template v-for="(field,index) in fields">
                 <div :key="'field_' + index" class="flex flex-row justify-start p-4">
                     <div class="w-1/3 text-left text-gray-200">{{field.label}}</div>

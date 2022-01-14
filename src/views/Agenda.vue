@@ -90,7 +90,7 @@ export default {
             console.log ( query )
             this.$api.service('status').find({query}).then ( response => {
                 this.calendarOptions['events'] = response[0].map ( event => {
-                    return { title: event.agente + ' - ' + event.ac_processo , start: event.dt_status , backgroundColor: '#' + event.ac_colore , id: event.id_status , notes: event.ac_note , agente: event.agente , azione: event.ac_processo , cliente: event.ac_cognome , citta: event.ac_citta , telefono: event.ac_telefono , data: event.data_status , ora: event.ora_status}
+                    return { title: event.ac_processo + ' > ' + event.ac_cognome.toUpperCase() , start: event.dt_status , backgroundColor: '#' + event.ac_colore , id: event.id_status , notes: event.ac_note , agente: event.agente , azione: event.ac_processo , cliente: event.ac_cognome , citta: event.ac_citta , telefono: event.ac_telefono , data: event.data_status , ora: event.ora_status }
                 })
                 this.$store.dispatch ( 'loading' )
             })

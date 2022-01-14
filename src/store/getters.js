@@ -7,7 +7,7 @@ const getters = {
   skip:         state => state.navigation.skip,
   user:         state => state.navigation.user,
   logged:       state => state.navigation.logged,
-  clienti_sort:       state => state.tables.clienti.sort,
+  clienti_sort: state => state.tables.clienti.sort,
   qualifiche:   state => state.tables.qualifiche,
   agenti:       state => state.tables.agenti
 }

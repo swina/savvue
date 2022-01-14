@@ -26,6 +26,10 @@ import DatePicker from 'vue2-datepicker';
 import 'vue2-datepicker/index.css';
 Vue.component ( 'datepicker', DatePicker );
 
+import JsonCSV from 'vue-json-csv'
+
+Vue.component('downloadCsv', JsonCSV)
+
 Vue.config.productionTip = false
 
 new Vue({

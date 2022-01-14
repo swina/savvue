@@ -4,6 +4,12 @@ const tables = {
             label: ['' , 'STANDARD' , 'DATI ERRATI' , 'MAI FATTO RICHIESTA' , 'NON RISPONDE'],
             icon: ['','icons/flag_green.gif','icons/flag_red.gif','img/icons/flag_blue.gif','icons/flag_orange.gif']
         },
+        macrogruppi: [
+            'Direzione Commerciale',
+            'Affiliati',
+            'Agenti',
+            'Ufficio Tecnico'
+        ],
         status:null,
         clienti: {
             sort : {

@@ -1,7 +1,7 @@
 <template>
     <div class="w-full p-2  pb-20" style="padding-bottom:10rem;">
         <transition name="fade">
-            <div v-if="edit" class="mt-8 w-full w-1/2 md:w-1/3 fixed top-0 right-0 h-screen border p-2 bg-white">
+            <div v-if="edit" class="z-10 mt-8 w-full w-1/2 md:w-1/3 fixed top-0 right-0 h-screen border p-2 bg-white">
                 <ui-crud v-if="selected" :fields="columns" title="Cliente" :record="selected"></ui-crud>
                 <div class="w-full flex flex-row justify-end">
                     <button class="btn-green" @click="edit=!edit">Salva</button>
@@ -9,7 +9,7 @@
                 </div>
             </div>
         </transition>
-        <ui-table :columns="columns" service="clienti" sort="dt_data_registrazione" @selected="what"></ui-table>
+        <ui-table service="clienti" :pagination="true" @selected="what"></ui-table>
     </div>
 </template>
 
@@ -199,19 +199,18 @@ export default {
         what(e){
             this.edit = true
             this.selected = e
-            console.log ( e )
         }
     },
 
     mounted(){
-        let query = {
-            skip : this.$store.getters.skip,
-            limit: 20
-        }
-        this.$api.service('clienti').find({query}).then ( response => {
-            this.customers = response[0]
-            this.data = response[0]
-        })
+        // let query = {
+        //     $skip : this.$store.getters.skip,
+        //     $limit: 20
+        // }
+        // this.$api.service('clienti').find({query}).then ( response => {
+        //     this.customers = response[0]
+        //     this.data = response[0]
+        // })
     }
 }
 </script>

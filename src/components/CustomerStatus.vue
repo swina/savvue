@@ -47,7 +47,7 @@
                     <div class="w-1/3">Azione</div>
                 </div>
             <template v-for="(row,i) in cliente">
-                <div class="flex flex-row p-1 border-b items-center cursor-pointer bg-opacity-25" :style="'background-color:#' + row.ac_colore" @click="index=i">
+                <div class="flex flex-row p-1 border-b items-center cursor-pointer bg-opacity-25" :style="'background-color:' + row.ac_colore" @click="index=i">
                     <div class="w-1/3 flex flex-row items-center">
                         <icon icon="arrow_right" :class="index===i?'text-black':'text-transparent'" class="text-base -ml-1"/>{{ row.data_status }}
                     </div>

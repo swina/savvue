@@ -27,6 +27,7 @@
     "vue-blob-json-csv": "^0.1.7",
     "vue-custom-element": "^3.3.0",
     "vue-file-agent": "^1.7.3",
+    "vue-json-csv": "^1.2.12",
     "vue-router": "^3.2.0",
     "vue-upload-component": "^2.8.20",
     "vue2-datepicker": "^3.10.4",

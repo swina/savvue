@@ -4,8 +4,23 @@
       
       <sidebar/>
     
-      <div class="w-full bg-gray-100 overflow-y-scroll">
-        <div v-if="$route.meta.title" class="bg-gray-800 w-full h-8 text-gray-400 flex items-center text-xs justify-center">{{$route.meta.title}}</div>
+      <div class="w-full bg-gray-100">
+        <div v-if="$route.meta.title" class="bg-gray-800 w-full h-8 text-lime-300 flex items-center text-base justify-center">{{$route.meta.title}}</div>
+        <div class="absolute right-0 top-0 m-1 mr-4 text-sm text-gray-300 flex items-center">
+          <icon icon="person" class="text-base rounded-full bg-lime-500 w-6 h-6" @click="user=!user"/>
+        </div>
+        <transition name="fade">
+          <div v-if="user" class="z-10 absolute right-0 mr-2 flex flex-col justify-start bg-gray-700 text-gray-100 text-sm shadow-lg cursor-pointer rounded-b-lg pb-4">
+            <div class="flex flex-col justify-center border-b mb-2 p-4 capitalize">
+                {{ $store.state.navigation.user.ac_nome }} {{ $store.state.navigation.user.ac_cognome }}
+                <br/>
+                <span class="text-gray-400">{{ $store.state.navigation.user.ac_gruppo }}</span>
+            </div>
+            <div class="p-2 flex flex-row items-center hover:bg-gray-600"><icon icon="settings" class="mr-2" size="sm"/>Impostazioni</div>
+            <div class="p-2 flex flex-row items-center hover:bg-gray-600"><icon icon="person" class="mr-2" size="sm"/>Profilo</div>
+            <div class="p-2 flex flex-row items-center hover:bg-gray-600"><icon icon="logout" class="mr-2" size="sm"/>Esci</div>
+          </div>
+        </transition>
         <router-view/>
       </div>
 
@@ -34,7 +49,8 @@ export default {
     Login
   },
   data:()=>({
-    products: null
+    products: null,
+    user: false
   }),
   computed: {
     ...mapState ( ['navigation'] )
@@ -49,14 +65,26 @@ export default {
       .then ( response => {
         this.$store.dispatch('SetUser',response.user)
         this.$store.dispatch('SetLogged',true)
-        this.$api.service('agenti').find().then ( result => {
+        return response.user
+      }).then ( user => {
+        this.$api.service ( 'agenti' ).find ( { query: { account : user.account } } ).then ( user => {
+            console.log ( user )
+            this.$store.dispatch('SetUser',user[0][0])
+        })
+      }).then ( () => {
+        this.$api.service('agenti').find({query:{$limit:200}}).then ( result => {
           this.$store.dispatch ( 'setAgenti' , result )
         })
-        this.$api.service('processi').find().then ( response => {
+      }).then ( () => {
+        this.$api.service('processi').find({ query : { $sort: { int_ordine: 1} }}).then ( response => {
+          response.data.map ( res => {
+            res.ac_colore = '#' + res.ac_colore
+          })
           console.log ( 'Processi => ' , response )
           this.$store.dispatch ( 'setProcessi', response )
         })
-         this.$api.service('gruppi').find().then ( response => {
+      }).then ( () => {
+        this.$api.service('gruppi').find().then ( response => {
           console.log ( 'Gruppi => ' , response )
           this.$store.dispatch ( 'setGruppi', response )
           

@@ -238,7 +238,7 @@ export default {
         },
         stile(colore,stile){
             if ( stile === 'text' ){
-                return 'background-color:#' + colore
+                return 'background-color:' + colore
             }
             return 'width:30px;'
         }

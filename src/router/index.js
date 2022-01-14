@@ -5,6 +5,8 @@ import Status from '../views/Status.vue'
 import Clienti from '../views/Clienti.vue'
 import Agenda from '../views/Agenda.vue'
 import Agenti from '../views/Agenti.vue'
+import Processi from '../views/Processi.vue'
+import Utenti from '../views/admin/Utenti.vue'
 
 Vue.use(VueRouter)
 
@@ -49,7 +51,22 @@ const routes = [
       title: 'Agenti'
     }
   },
-
+  {
+    path: '/processi',
+    name: 'processi',
+    component: Processi,
+    meta: {
+      title: 'Processi'
+    }
+  },
+  {
+    path: '/utenti',
+    name: 'utenti',
+    component: Utenti,
+    meta: {
+      title: 'Utenti'
+    }
+  },
 ]
 
 const router = new VueRouter({
