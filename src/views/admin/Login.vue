@@ -1,7 +1,7 @@
 <template>
     <div class="w-full bg-gray-700 h-screen flex">
         <div class="w-full md:w-1/4 flex flex-col  m-auto border rounded">
-            <img class="m-auto" src="img/logo.png"/>
+            <img class="m-auto" src="/img/logo.png"/>
             <div class="m-auto">Login</div>
             <template v-for="(field,index) in fields">
                 <div :key="'field_' + index" class="flex flex-row justify-start p-4">
@@ -12,6 +12,8 @@
             <div class="row justify-center p-4">
                 <button class="bg-blue-100 py-2 px-4 rounded" @click="login">Login</button>
             </div>
+            <!-- <a href="http://localhost:3030/oauth/google"><button class="btn-blue">Account Savenergy.it</button></a> -->
+            
         </div>
     </div>
 </template>

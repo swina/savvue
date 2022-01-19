@@ -7,7 +7,7 @@ import Agenda from '../views/Agenda.vue'
 import Agenti from '../views/Agenti.vue'
 import Processi from '../views/Processi.vue'
 import Utenti from '../views/admin/Utenti.vue'
-
+import GoogleLogin from '../views/admin/Google.vue'
 Vue.use(VueRouter)
 
 const routes = [
@@ -65,7 +65,15 @@ const routes = [
     component: Utenti,
     meta: {
       title: 'Utenti'
-    }
+    },
+  },
+  {
+    path: '/oauth/google/callback',
+    name: 'google',
+    component: GoogleLogin,
+    meta: {
+      title: 'Accesso'
+    },
   },
 ]
 
