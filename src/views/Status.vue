@@ -180,7 +180,7 @@ export default {
         }
     }),
     computed: {
-        ...mapState ( ['tables'] ),
+        ...mapState ( ['tables','navigation'] ),
         agenti(){
             let sorted = this.tables.agenti.data.sort((a,b) => {
                 if ( a.ac_cognome.toLowerCase() > b.ac_cognome.toLowerCase() ) return 1
@@ -204,13 +204,14 @@ export default {
     methods:{
         qry () {
             this.$store.dispatch ( 'loading' )
+            console.log ( this.navigation.user.int_livello )
             const query = {
                 skip: this.skip,
                 limit: this.limit,
                 order: this.order,
                 filter: this.filter,
                 search: this.search,
-                id_persona: this.id_agente,
+                id_persona: this.navigation.user.int_livello > 0 ? this.navigation.user.id_persona : null,
                 id_processo: this.id_processo,
                 dt_from: this.fromDate ? this.fromDate.toISOString().split('T')[0] : null,
                 dt_to: this.toDate ? this.toDate.toISOString().split('T')[0] : null,

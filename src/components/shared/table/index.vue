@@ -124,7 +124,7 @@ export default {
         //columns: { type: Array, required: true , default:()=>[] }
     },
     computed:{
-        ...mapState ( ['tables'] ),
+        ...mapState ( ['tables','navigation'] ),
         columns(){
             return schema[this.table||this.service].fields
         }
@@ -171,6 +171,9 @@ export default {
                     $skip : this.skip,
                     $sort : schema[this.service||this.table].sort
                 }
+            }
+            if ( this.navigation.user.int_livello > 0 ){
+                query.query['id_agente'] = this.navigation.user.id_persona
             }
             if ( this.$attrs.params ){
                  query.query['params'] = this.$attrs.params

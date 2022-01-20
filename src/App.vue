@@ -2,7 +2,7 @@
   <div id="app" class="w-full fixed h-screen flex flex-col bg-gray-800">
     <div class="w-full flex flex-row" v-if="$store.state.navigation.logged">
       
-      <sidebar/>
+      <sidebar v-if="$store.state.navigation.user"/>
     
       <div class="w-full bg-gray-100">
         <div v-if="$route.meta.title" class="bg-gray-800 w-full h-8 text-lime-300 flex items-center text-base justify-center">{{$route.meta.title}}</div>
@@ -18,7 +18,7 @@
             </div>
             <div class="p-2 flex flex-row items-center hover:bg-gray-600"><icon icon="settings" class="mr-2" size="sm"/>Impostazioni</div>
             <div class="p-2 flex flex-row items-center hover:bg-gray-600"><icon icon="person" class="mr-2" size="sm"/>Profilo</div>
-            <div class="p-2 flex flex-row items-center hover:bg-gray-600"><icon icon="logout" class="mr-2" size="sm"/>Esci</div>
+            <div class="p-2 flex flex-row items-center hover:bg-gray-600" @click="logout()"><icon icon="logout" class="mr-2" size="sm"/>Esci</div>
           </div>
         </transition>
         <router-view/>
@@ -58,6 +58,12 @@ export default {
   methods:{
     active(path){
       return this.$route.fullPath === path ? 'font-bold text-red-700' : ''
+    },
+    logout(){ 
+      window.localStorage.removeItem('feathers-jwt')
+      this.$store.dispatch('SetUser',null)
+      this.$router.push('/')
+      window.location.reload()
     }
   },
   beforeMount(){

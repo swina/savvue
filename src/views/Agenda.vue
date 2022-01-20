@@ -62,7 +62,7 @@ export default {
         FullCalendar // make the <FullCalendar> tag available
     },
     computed: {
-        ...mapState ( ['tables'] ),
+        ...mapState ( ['tables','navigation'] ),
         config () {
             return {
                 ... this.calendarOptions,
@@ -85,7 +85,10 @@ export default {
     methods:{
         qry(){
             let today = this.today.toISOString().split('T')[0]
-            let query = { dt_from: today  }
+            let query = { 
+                dt_from: today  ,
+                id_agente : this.navigation.user.int_livello > 0 ? this.navigation.user.id_persona : null
+            }
             this.$store.dispatch ( 'loading' )
             console.log ( query )
             this.$api.service('status').find({query}).then ( response => {

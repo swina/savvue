@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <!-- <AlertHome/> -->
+    <AlertHome/>
   </div>
 </template>
 
