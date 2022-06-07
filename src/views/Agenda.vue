@@ -44,6 +44,7 @@ export default {
             initialView: 'timeGridWeek',
             events:[],
             locale: 'it',
+            timeZone: 'UTC',
             weekends: false,
             height: 650,
             slotMinTime: "07:00:00",
