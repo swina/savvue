@@ -23,13 +23,14 @@
                 <div class="flex flex-col text-left">        
                     <div class="my-2">Password <input type="text" v-model="newPassword" placeholder="password"/></div>
                     <div>
-                    Conferma Password <input type="text" v-model="newPassword" placeholder="conferma password"/>
+                    Conferma Password <input type="text" v-model="confirmPassword" placeholder="conferma password" @input="checkConfirm"/>
+                    <div class="text-red-500 text-xs">{{ notConfirmed }}</div>
                     </div>
                 </div>
 
             </div>
             <div class="w-full flex flex-row justify-end">
-                <button class="btn-green" @click="agente=null">Salva</button>
+                <button class="btn-green" @click="createUser">Salva</button>
                 <button @click="agente=null,changePassword=false">Chiudi</button>
             </div>
         </div>
@@ -49,7 +50,8 @@ export default {
         changePassword: false,
         newUser: '',
         newPassword: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        notConfirmed: ''
     }),
     computed:{
         ...mapState ( ['tables'] ),
@@ -58,6 +60,13 @@ export default {
         }
     },
     methods:{
+        checkConfirm(){
+            if ( this.newPassword != this.confirmPassword ){
+                this.notConfirmed = 'passwords don\'t matches'
+                return
+            }
+            this.notConfirmed = ''
+        },
         selected (data){
             this.agente = data
             let query = {
@@ -68,6 +77,21 @@ export default {
                 this.$store.dispatch ( 'loading' )
                 this.user = response.data[0]
             })
+        },
+        createUser(){
+            console.log ( this )
+            let gruppo = this.tables.gruppi.data.filter ( a => a.id_gruppo === this.agente.id_gruppo )[0]
+            this.newPassword && this.newPassword === this.confirmPassword ?
+                this.$api.service('users').create ( {
+                    "email"         : this.newUser,
+                    "password"      : this.newPassword,
+                    "account"       : this.agente.ac_email,
+                    "int_livello"   : gruppo.int_livello
+                }).then ( response => {
+                    this.user = response
+                    this.$notify ( 'Utente creato correttamente')
+                })
+                : this.$notify('Password mancante o password di conferma non coincide')
         }
     }
 

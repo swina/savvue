@@ -1,5 +1,5 @@
 <template>
-    <div class="p-4 relative w-full min-h-screen">
+    <div class="p-4 relative w-full bg-white rounded">
         <transition name="fade"> 
             <div class="fixed inset-0 z-2 flex justify-center items-center h-screen" v-if="selectedEvent">
                 <div class="md:w-1/2 lg:w-1/3 p-4 flex flex-col text-left text-sm p-2 relative bg-white rounded-lg shadow-lg border-4" :style="'border-color:' + selectedEvent.backgroundColor">

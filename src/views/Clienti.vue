@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full p-2  pb-20" style="padding-bottom:10rem;">
+    <div class="w-full p-2  pb-20 bg-white rounded" style="padding-bottom:10rem;">
         <transition name="fade">
             <div v-if="edit" class="z-10 mt-8 w-full w-1/2 md:w-1/3 fixed top-0 right-0 h-screen border p-2 bg-white">
                 <ui-crud v-if="selected" :fields="columns" title="Cliente" :record="selected"></ui-crud>

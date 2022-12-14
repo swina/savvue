@@ -1,9 +1,9 @@
 <template>
-    <div class="flex flex-row p-2 pb-64 overflow-y-auto" v-if="status">
+    <div class="flex flex-row p-2 pb-64 overflow-y-auto bg-white rounded" v-if="status">
         <div class="w-3/4 flex flex-col relative shadow-lg">
-            <div class="w-full text-left h-8 flex flex-row items-center">
+            <div class="w-full text-left flex flex-row items-center">
                 
-                <icon icon="filter_alt" @click="filtro=!filtro"/>
+                <!-- <icon icon="filter_alt" class="text-sm" @click="filtro=!filtro"/> -->
                 <div class="flex flex-row text-xs justify-between"> 
                     <div v-if="id_agente" class="mx-2"><span>Agente:</span> <span class="font-bold">{{ filtroText.agente ? filtroText.agente : '' }}</span></div>
                     <div v-if="id_processo"><span >Processo:</span><span class="font-bold"> {{ filtroText.processo ? filtroText.processo : '' }}</span></div>
@@ -51,7 +51,7 @@
                     <!-- <th></th> -->
                 </thead>
                 <template v-for="(row,index) in status">
-                    <tr :key="'row_' + index" class="cursor-pointer hover:bg-gray-400" @click="id_cliente=row.id_cliente" :class="id_cliente===row.id_cliente?'bg-blue-300 font-bold':''">
+                    <tr :key="'row_' + index" class="cursor-pointer hover:bg-gray-400" @click="qryCustomer(row.id_cliente),currentRow=row.id_cliente" :class="currentRow===row.id_cliente?'bg-blue-300 font-bold':''">
                         <td class="w-8 py-1 px-1 border-r uppercase">{{(skip)+index+1}}</td>
                         
                         <template v-for="(field,i) in columns.fields">
@@ -80,6 +80,7 @@
                 </template>
             </table>
             <div class="flex flex-row items-center justify-around">
+                <icon icon="filter_alt" class="absolute left-0" @click="filtro=!filtro"/>
                 <icon icon="arrow_back_ios" class="text-xl" @click="skip>0?skip-=limit:skip=0"/>
                     <div class="flex flex-row text-xs">
                         Pagina {{ (skip/limit)+1}}
@@ -88,8 +89,9 @@
             </div>
         </div>
         <transition name="fade">
-         <div class="w-1/4 mt-8 shadow-lg bg-gray-200">
-            <CustomerStatus :id_cliente="id_cliente"/>
+         <div class="w-1/4 shadow-lg bg-gray-200">
+            <!-- <CustomerStatus :id_cliente="id_cliente"/> -->
+            <CustomerStatus :cliente="cliente" v-if="cliente"/>
          </div>
         </transition>
         <!-- <div class="fixed inset-0 flex justify-center items-center h-screen" v-if="loading">
@@ -122,6 +124,8 @@ export default {
         id_processo: '',
         fromDate: null,
         toDate: null,
+        currentRow: 0,
+        cliente: null,
         columns:
         {
             fields: [
@@ -192,14 +196,15 @@ export default {
     watch:{
         skip(){
             this.id_cliente = null
+            this.cliente = null
             this.qry()
         },
-        id_agente(id){
-            this.filtroText['agente'] = this.tables.agenti.data.filter ( a => a.id_persona === id )[0].ac_cognome
-        },
-        id_processo(id){
-            this.filtroText['processo'] = this.tables.processi.data.filter ( a => a.id_processo === id )[0].ac_processo
-        }
+        // id_agente(id){
+        //     this.filtroText['agente'] = this.tables.agenti.data.filter ( a => a.id_persona === id )[0].ac_cognome
+        // },
+        // id_processo(id){
+        //     this.filtroText['processo'] = this.tables.processi.data.filter ( a => a.id_processo === id )[0].ac_processo
+        // }
     },
     methods:{
         qry () {
@@ -238,11 +243,29 @@ export default {
             this.qry()
         },
         stile(colore,stile){
+            
             if ( stile === 'text' ){
-                return 'background-color:' + colore
+                return 'background-color:#' + colore.replace('#','') 
             }
             return 'width:30px;'
+        },
+        qryCustomer(id){
+            this.cliente = null
+            console.log ( id )
+            this.$api.service('cliente/status').find({query:{id_cliente:id}}).then ( response => {
+                console.log ( "Status Cliente=" , response )
+                this.index = -1
+                this.cliente = response
+                this.index = 0//this.cliente.length -1
+                this.selectedProcess = this.cliente[this.index].id_processo
+                this.actionDate = this.cliente[this.index].data_status 
+                this.actionTime = this.cliente[this.index].ora_status
+                this.selectedNotes = this.cliente[this.index].ac_note
+            }).catch ( error => {
+                console.log ( error )
+            })
         }
+
     },
     beforeMount(){
         this.qry()
@@ -252,16 +275,24 @@ export default {
     },
     mounted(){
         this.loading = true
-        window.addEventListener("keydown", e => {
-            if ( e.keyCode === 33 ){
-                this.id_cliente = null
-                this.skip > 0 ? this.skip -= this.limit : null
-            }
-            if ( e.keyCode === 34 ){
-                this.id_cliente = null
-                this.skip += this.limit
-            }
-        })
+        // window.addEventListener("keydown", e => {
+        //     console.log ( e )
+        //     if ( e.keyCode === 'ArrowDown' ){
+        //         this.currentRow++
+        //         this.id_cliente = this.status[this.currentRow]['id_cliente']
+        //     }
+        //     if ( e.keyCode === 'ArrowDown' ){
+        //         this.currentRow--
+        //     }
+        //     if ( e.keyCode === 33 ){
+        //         this.id_cliente = null
+        //         this.skip > 0 ? this.skip -= this.limit : null
+        //     }
+        //     if ( e.keyCode === 34 ){
+        //         this.id_cliente = null
+        //         this.skip += this.limit
+        //     }
+        // })
     }
 }
 </script>

@@ -47,7 +47,7 @@
                     <div class="w-1/3">Azione</div>
                 </div>
             <template v-for="(row,i) in cliente">
-                <div class="flex flex-row p-1 border-b items-center cursor-pointer bg-opacity-25" :style="'background-color:' + row.ac_colore" @click="index=i">
+                <div class="flex flex-row p-1 border-b items-center cursor-pointer bg-opacity-25" :style="'background-color:#' + row.ac_colore" @click="index=i">
                     <div class="w-1/3 flex flex-row items-center">
                         <icon icon="arrow_right" :class="index===i?'text-black':'text-transparent'" class="text-base -ml-1"/>{{ row.data_status }}
                     </div>
@@ -65,30 +65,35 @@ import { mapState } from 'vuex'
 export default {
     name: 'CustomerStatus',
     data: () => ({
-        cliente: null,
+        //cliente: null,
         selectedProcess: '',
         actionDate: null,
         actionTime: null,
         selectedNotes: '',
-        index: -1
+        index: 0
     }),
     props:[
-        'id_cliente'
+        'id_cliente',
+        'cliente'
     ],
     computed:{
-        ...mapState(['tables'])
+        ...mapState(['tables']),
+        
     },
     methods:{
         customer(id){
             this.$api.service('cliente/status').find({query:{id_cliente:id}}).then ( response => {
-                console.log ( response )
+                console.log ( "Status Cliente=" , response )
+                this.cliente = null
                 this.index = -1
-                this.cliente = response[0]
+                this.cliente = response
                 this.index = 0//this.cliente.length -1
                 this.selectedProcess = this.cliente[this.index].id_processo
                 this.actionDate = this.cliente[this.index].data_status 
                 this.actionTime = this.cliente[this.index].ora_status
                 this.selectedNotes = this.cliente[this.index].ac_note
+            }).catch ( error => {
+                console.log ( error )
             })
             
         },
@@ -127,10 +132,15 @@ export default {
             this.selectedNotes = this.cliente[i].ac_note
         }
     },
-    // mounted(){
-    //     if ( this.$attrs.customer ) {
-    //         this.customer ( this.$attrs.customer )
-    //     }
-    // }
+    mounted(){
+        this.index = 0//this.cliente.length -1
+                this.selectedProcess = this.cliente[this.index].id_processo
+                this.actionDate = this.cliente[this.index].data_status 
+                this.actionTime = this.cliente[this.index].ora_status
+                this.selectedNotes = this.cliente[this.index].ac_note
+        // if ( this.$attrs.customer ) {
+        //     this.customer ( this.$attrs.customer )
+        // }
+    }
 }
 </script>

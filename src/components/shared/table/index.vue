@@ -1,5 +1,5 @@
 <template>
-    <div class="relative w-full p-2 overflow-auto" v-if="dataset">
+    <div class="relative w-full p-2 overflow-auto bg-white rounded" v-if="dataset">
         <table class="w-full border border-gray-800 text-left text-xs min-h-100">
             <thead class="text-xs py-2 bg-gray-500 text-white uppercase">
                 <th class="border-b border-r px-1 py-2 border-r">#</th>
@@ -33,7 +33,7 @@
                                 </template>
                             </select>
                             <img v-if="field.type === 'list_icon'"  :title="$store.getters[field.list].label[row[field.key]]" :src="$store.getters[field.list].icon[row[field.key]]"/>
-                            <div v-if="field.type === 'color'" class="w-5 h-5 rounded-full border shadow-lg" :style="'background-color:' + row[field.key]" :title="row[field.key]"></div>
+                            <div v-if="field.type === 'color'" class="w-5 h-5 rounded-full border shadow-lg" :style="'background-color:#' + row[field.key].replace('#','')" :title="row[field.key]"></div>
                             <div v-if="field.type === 'array'">
                                 {{ row[field.key] }}
                                 {{ row[field.key].split(',')[field.index] }}

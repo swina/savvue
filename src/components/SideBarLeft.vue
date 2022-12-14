@@ -11,7 +11,7 @@
                 <span v-if="!menu_closed" class="text-base ml-2">{{item.title}}</span>
             </router-link>
         </template>
-        <div class="fixed bottom-0 w-full text-center mb-2  text-gray-300">Savenergy CRM 2.0</div>
+        <!-- <div class="bg-gray-800 fixed bottom-0 w-full text-center text-xs text-gray-300" style="font-size:.55rem">Savenergy CRM 2.0</div> -->
         <i class="material-icons fixed bottom-0 left-0 cursor-pointer text-md" title="Espandi" @click="menu_closed=!menu_closed">{{navigate_arrow}}</i>
     </div>
 </template>

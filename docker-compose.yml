@@ -13,3 +13,7 @@ services:
       - npm_config_unsafe_perm=true
     ports:
       - "8081:8080"
+  api:
+    container_name: sav-api
+    build:
+      dockerfile: ../savnodejs/Dockerfile

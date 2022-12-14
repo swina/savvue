@@ -21,7 +21,9 @@
             <div class="p-2 flex flex-row items-center hover:bg-gray-600" @click="logout()"><icon icon="logout" class="mr-2" size="sm"/>Esci</div>
           </div>
         </transition>
+        <div class="rounded bg-gray-300 m-1 p-1">
         <router-view/>
+        </div>
       </div>
 
     </div> 
