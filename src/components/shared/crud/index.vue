@@ -1,9 +1,9 @@
 <template>
-    <div>
+    <div class="bg-gray-100 rounded mb-2 p-2">
         <div class="bg-gray-500 text-white p-1 font-bold">{{ $attrs.title }}</div>
         <div class="w-full flex flex-row flex-wrap justify-left text-left">
             <template v-for="(field,index) in fields">
-                <div v-if="field.editable" :key="'field_' + index" class="w-full md:w-1/2 px-2">
+                <div v-if="field.editable" :key="'field_' + index" class="relative w-full md:w-1/2 px-2">
                     <label class="text-xs font-bold">{{field.label}}</label>
                     <br>
                     <input v-if="field.type === 'text'" type="text" v-model="record[field.key]"/>
@@ -13,7 +13,7 @@
                             {{ !field.simple ? option[field.display] : option }} 
                         </option>
                     </select>
-                    <input v-if="field.type === 'color'" type="color" class="w-8 h-8 rounded-full border shadow-lg" v-model="record[field.key]"/>
+                    <input v-if="field.type === 'color'" type="color" id="colorPicker" class="h-8 w-8 opacity-0" v-model="record[field.key]"/><div v-if="field.type === 'color'" class="absolute z-20 h-8 w-8 top-6 border left-3 rounded-full cursor-pointer" :style="'background:#' + record[field.key].replace('#','')" @click="viewPicker"></div>
                 </div>
             </template>
         </div>
@@ -28,7 +28,16 @@ export default {
         fields: { type: Array, required: true, default:()=>[] }
     },
     computed:{
-        ...mapState ( ['tables'] )
+        ...mapState ( ['tables'] ),
+        getcolor(){
+            return this.record.ac_colore
+        }
+    },
+    methods:{
+        viewPicker(){
+            let colorPicker = document.getElementById('colorPicker')
+            colorPicker.showPicker()
+        }
     }
 }
 </script>

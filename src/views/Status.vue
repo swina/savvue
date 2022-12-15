@@ -18,7 +18,7 @@
                             <input type="text" v-model="search" class="border-r border-l border-b text-left text-xs" placeholder="Cerca cliente...">
                             <select v-model="id_agente" class="my-2">
                                 <option value="">Cerca Agente ...</option>
-                                <option v-for="(agent,i) in agenti" :value="agent.id_persona" class="lowercase capitalize">{{agent.ac_cognome}} {{agent.ac_nome }}</option>
+                                <option v-for="(agent,i) in agenti" v-if="!agent.bl_cancellato" :value="agent.id_persona" class="lowercase capitalize">{{agent.ac_cognome}} {{agent.ac_nome }}</option>
                             </select>
                             <select v-model="id_processo">
                                 <option value="">Cerca processo ...</option>
@@ -199,12 +199,12 @@ export default {
             this.cliente = null
             this.qry()
         },
-        // id_agente(id){
-        //     this.filtroText['agente'] = this.tables.agenti.data.filter ( a => a.id_persona === id )[0].ac_cognome
-        // },
-        // id_processo(id){
-        //     this.filtroText['processo'] = this.tables.processi.data.filter ( a => a.id_processo === id )[0].ac_processo
-        // }
+        id_agente(id){
+            this.filtroText['agente'] = this.tables.agenti.data.filter ( a => a.id_persona === id )[0].ac_cognome
+        },
+        id_processo(id){
+            this.filtroText['processo'] = this.tables.processi.data.filter ( a => a.id_processo === id )[0].ac_processo
+        }
     },
     methods:{
         qry () {
@@ -216,7 +216,7 @@ export default {
                 order: this.order,
                 filter: this.filter,
                 search: this.search,
-                id_persona: this.navigation.user.int_livello > 0 ? this.navigation.user.id_persona : null,
+                id_persona: this.navigation.user.int_livello > 0 ? this.navigation.user.id_persona : this.id_agente,
                 id_processo: this.id_processo,
                 dt_from: this.fromDate ? this.fromDate.toISOString().split('T')[0] : null,
                 dt_to: this.toDate ? this.toDate.toISOString().split('T')[0] : null,
