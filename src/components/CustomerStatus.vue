@@ -106,14 +106,22 @@ export default {
         createStatus(){
             //this.$api.service ( 'status' ).create ( {
             let error = false
+            //let dateAction = new Date().toISOString().slice(0, 19).replace('T', ' ');
+            let dateAction = this.actionDate.split('/');
+
             let newStatus = {
                 id_processo : this.selectedProcess ? this.selectedProcess : error=true,
-			    id_cliente	: this.id_cliente,
+			    id_cliente	: this.cliente[0].id_cliente,
 			    id_persona	: this.cliente[0].id_persona,
-			    dt_status	: Date.parse( this.actionDate + 'T' + this.actionTime ),
+			    dt_status	: dateAction[2]+'-'+dateAction[1]+'-'+dateAction[0] + ' ' + this.actionTime, //Date.parse( this.actionDate + 'T' + this.actionTime ),
 			    ac_note     : this.selectedNotes
             }
-            console.log ( newStatus , error )
+            this.$api.service ( 'status' ).create ( newStatus ).then ( response => {
+                console.log ( response )
+            }).catch ( error => {
+                console.log ( error )
+            })
+            //console.log ( newStatus , error )
         },
     },
     watch:{
