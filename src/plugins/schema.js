@@ -10,7 +10,8 @@ const schema = {
                 type: 'text',
                 view: true,
                 editable: true,
-                searchable: true
+                searchable: true,
+                order: true
             },
             {
                 key: 'ac_nome',
@@ -18,7 +19,8 @@ const schema = {
                 type: 'text',
                 view: true,
                 editable: true,
-                searchable: true
+                searchable: true,
+                order: false
             },
             {
                 key: 'ac_indirizzo',
@@ -26,7 +28,8 @@ const schema = {
                 type: 'text',
                 view: true,
                 editable: true,
-                searchable: true
+                searchable: true,
+                order: false
             },
             {
                 key: 'ac_citta',
@@ -34,7 +37,8 @@ const schema = {
                 type: 'text',
                 view: true,
                 editable: true,
-                searchable: true
+                searchable: true,
+                order: true
             },
 
             {
@@ -43,7 +47,8 @@ const schema = {
                 type: 'text',
                 view: true,
                 editable: true,
-                searchable: true
+                searchable: true,
+                order: true
             },
             {
                 key: 'ac_telefono',
@@ -51,7 +56,8 @@ const schema = {
                 type: 'text',
                 view: false,
                 editable: true,
-                searchable: false
+                searchable: false,
+                order: false
             },
             {
                 key: 'ac_celluare',
@@ -59,7 +65,8 @@ const schema = {
                 type: 'text',
                 view: false,
                 editable: true,
-                searchable: false
+                searchable: false,
+                order: false
             },
             {
                 key: 'ac_email',
@@ -67,7 +74,8 @@ const schema = {
                 type: 'text',
                 view: false,
                 editable: true,
-                searchable: false
+                searchable: false,
+                order: false
             },
             {
                 key: 'bl_attivo',

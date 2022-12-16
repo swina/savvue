@@ -26,7 +26,7 @@
         <!-- <ui-table service="clienti" :pagination="true" @selected="what"></ui-table> -->
         <div v-if="clienti" class="flex flex-col text-xs">
             <div class="flex flex-col justify-start items-start mx-40 border text-xs rounded bg-white">
-                <h3 class="p-1 text-lg text-white bg-gray-800 w-full text-left">Nuovi Clienti</h3>
+                <h3 class="p-1 text-lg text-white bg-gray-800 w-full text-left">Nuovi Contatti</h3>
                 
                 <template v-for="cliente in clienti.data">
                     <div class="flex w-full">
@@ -83,11 +83,11 @@ export default {
             let alerts = resp[0]
             this.alerts = this.$arrayGroup ( alerts , 'ac_processo' , 'dt_status' )
         })
-        
+        const today = new Date()
         const qry = { 
             query: { 
-                dt_from: '20221212' , 
-                dt_to: '20221212' 
+                dt_from: today.toISOString().split('T')[0].replaceAll('-','') , 
+                dt_to: today.toISOString().split('T')[0].replaceAll('-','') 
             }
         } 
         

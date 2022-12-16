@@ -4,7 +4,7 @@
             <thead class="text-xs py-2 bg-gray-500 text-white uppercase">
                 <th class="border-b border-r px-1 py-2 border-r">#</th>
                 <template v-for="(field,i) in columns">
-                    <th class="border-r px-1" v-if ="!field.hide && field.view" :key="'head_' + field.key + '_' + i">{{field.label}}</th>
+                    <th class="border-r px-1 items-center" v-if ="!field.hide && field.view" :key="'head_' + field.key + '_' + i">{{field.label}} <span v-if="field.order" @click="order===field.key?order=null:order=field.key"><icon icon="expand_more" class="text-sm"/></span></th>
                 </template>
                 <!-- <th></th> -->
             </thead>
@@ -104,6 +104,7 @@ export default {
         edit: false,
         dataset:null,
         pagination: true,
+        order:null,
         download:true,
         json_data: null,
         skip: 0,
@@ -131,6 +132,7 @@ export default {
     },
     watch:{
         search ( value ){
+            if ( !this.search ) return
             let field = this.columns.filter ( a => a.key === value )
             if ( field[0].relation ){
                 this.searchField = field[0].simple ? 'simple' : field[0].key
@@ -139,6 +141,9 @@ export default {
             } else {
                 this.searchArray = null
             }
+        },
+        order ( value ){
+            this.getData()
         }
     },
     methods:{
@@ -165,11 +170,26 @@ export default {
             
             let vm = this
             this.notfound = false
+            let sort = schema[this.service||this.table].sort
+            let target = 'tbl_' + this.service||this.table
+            if ( this.order ){
+                sort = {}
+                sort[target + '.' + this.order] = -1
+            }
             let query = {
                 query : { 
                     $limit: this.limit,
                     $skip : this.skip,
-                    $sort : schema[this.service||this.table].sort
+                    sort : sort//schema[this.service||this.table].sort
+                }
+            }
+            if ( !this.order ){
+                query = {
+                    query : { 
+                        $limit: this.limit,
+                        $skip : this.skip,
+                        $sort : sort
+                    }
                 }
             }
             if ( this.navigation.user.int_livello > 0 ){
@@ -178,6 +198,7 @@ export default {
             if ( this.$attrs.params ){
                  query.query['params'] = this.$attrs.params
             }
+            console.log ( query )
             this.$store.dispatch ( 'loading' )
             this.$api.service(this.service).find(query).then ( response => {
                 if ( this.service != 'status' ){
@@ -192,14 +213,23 @@ export default {
             })
         },
         searchData(){
+            let target = 'tbl_' + this.service||this.table
             this.notfound = false
             let qry = {
                 $limit: 20,
                 $skip : this.$store.getters.skip,
                 $sort : this.$store.getters.clienti_sort,
             }
-            qry[this.search] = { 
-                $like : this.searchValue + '%' 
+            if ( target != 'tbl_clienti' ){
+                qry[target + '.' + this.search] = { 
+                    $like : this.searchValue + '%' 
+                }
+            } else {
+                qry['search'] = {
+                    table: target,
+                    field: this.search,
+                    value: this.searchValue
+                }
             }
             let query = {
                 query : qry

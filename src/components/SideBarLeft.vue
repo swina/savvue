@@ -66,6 +66,12 @@ export default {
                 path: 'utenti',
                 livello:0,
             },
+            {
+                title: 'Importa XLS',
+                icon: 'upload_file',
+                path: 'import',
+                livello:0,
+            },
         ]
     }),
     computed: {

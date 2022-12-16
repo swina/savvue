@@ -8,6 +8,7 @@ import Agenti from '../views/Agenti.vue'
 import Processi from '../views/Processi.vue'
 import Utenti from '../views/admin/Utenti.vue'
 import GoogleLogin from '../views/admin/Google.vue'
+import ImportExcel from '../components/Import.vue'
 Vue.use(VueRouter)
 
 const routes = [
@@ -65,6 +66,14 @@ const routes = [
     component: Utenti,
     meta: {
       title: 'Utenti'
+    },
+  },
+  {
+    path: '/import',
+    name: 'import',
+    component: ImportExcel,
+    meta: {
+      title: 'Importa XLS'
     },
   },
   {

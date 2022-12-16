@@ -35,7 +35,8 @@ export default {
                 type: 'text',
                 view: true,
                 editable: true,
-                searchable: true
+                searchable: true,
+                order: true
             },
             {
                 key: 'ac_nome',
@@ -43,7 +44,8 @@ export default {
                 type: 'text',
                 view: true,
                 editable: true,
-                searchable: true
+                searchable: true,
+                order: false
             },
             {
                 key: 'ac_indirizzo',
@@ -59,7 +61,8 @@ export default {
                 type: 'text',
                 view: true,
                 editable: true,
-                searchable: true
+                searchable: true,
+                order: true
             },
 
             {
@@ -68,7 +71,8 @@ export default {
                 type: 'text',
                 view: true,
                 editable: true,
-                searchable: true
+                searchable: true,
+                order: true
             },
             {
                 key: 'ac_telefono',
@@ -142,7 +146,8 @@ export default {
                 format: 'date',
                 view: true,
                 editable: false,
-                searchable: true
+                searchable: true,
+                order: true
             },
             {
                 key: 'ac_segnalatore',
