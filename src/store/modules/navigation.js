@@ -54,7 +54,10 @@ const navigation = {
         },
         pagine: null,
         skip: 0,
-        loading: false
+        loading: false,
+        message: '',
+        error: '',
+        modal: null
     },
     mutations: {
         locale ( state , locale ){
@@ -74,6 +77,15 @@ const navigation = {
         },
         loading ( state , loading ){
             state.loading =! state.loading 
+        },
+        message ( state , message ){
+            state.message = message
+        },
+        error ( state , error ){
+            state.error = error
+        },
+        modal ( state , modal ){
+            state.modal = modal
         }
     },
     actions: {
@@ -94,6 +106,15 @@ const navigation = {
         },
         loading ( { commit } , loading ){
             commit ( 'loading' , loading )
+        },
+        message ( { commit} , message ){
+            commit ( 'message' , message )
+        },
+        error ( { commit} , error ){
+            commit ( 'error' , error)
+        },
+        modal ( { commit} , modal ){
+            commit ( 'modal' , modal )
         }
     }
 }

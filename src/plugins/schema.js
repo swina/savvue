@@ -60,7 +60,7 @@ const schema = {
                 order: false
             },
             {
-                key: 'ac_celluare',
+                key: 'ac_cellulare',
                 label: 'Mobile',
                 type: 'text',
                 view: false,
@@ -84,6 +84,14 @@ const schema = {
                 icon: 'lens',
                 view: true,
                 editable: false
+            },
+            {
+                key: 'bl_attivo',
+                label: 'Attivo',
+                type: 'boolean',
+                icon: 'lens',
+                view: false,
+                editable: true
             },
             {
                 key: 'id_qualifica',

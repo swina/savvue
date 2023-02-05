@@ -47,7 +47,7 @@ export default {
             timeZone: 'UTC',
             weekends: false,
             height: 650,
-            slotMinTime: "07:00:00",
+            slotMinTime: "03:00:00",
             slotMaxTime: "23:00:00",
             headerToolbar: {
                 start: '',
@@ -86,15 +86,32 @@ export default {
     methods:{
         qry(){
             let today = this.today.toISOString().split('T')[0]
+            let next = this.today
+            next.setDate(this.today.getDate() + 30);
             let query = { 
                 dt_from: today  ,
-                id_agente : this.navigation.user.int_livello > 0 ? this.navigation.user.id_persona : null
+                // dt_to: next.toISOString().split('T')[0],
+                id_agente : this.navigation.user.int_livello > 0 ? this.navigation.user.id_persona : null,
+                $limit: 200
             }
             this.$store.dispatch ( 'loading' )
             console.log ( query )
-            this.$api.service('status').find({query}).then ( response => {
+            this.$api.service('agenda').find({query}).then ( response => {
+                console.log ( response[0] )
                 this.calendarOptions['events'] = response[0].map ( event => {
-                    return { title: event.ac_processo + ' > ' + event.ac_cognome.toUpperCase() , start: event.dt_status , backgroundColor: '#' + event.ac_colore , id: event.id_status , notes: event.ac_note , agente: event.agente , azione: event.ac_processo , cliente: event.ac_cognome , citta: event.ac_citta , telefono: event.ac_telefono , data: event.data_status , ora: event.ora_status }
+                    return { 
+                        title: event.ac_processo + ' > ' + event.ac_cognome.toUpperCase() , 
+                        start: event.dt_status , 
+                        backgroundColor: '#' + event.ac_colore , 
+                        id: event.id_status , 
+                        notes: event.ac_note , 
+                        agente: event.agente , 
+                        azione: event.ac_processo , 
+                        cliente: event.ac_cognome , 
+                        citta: event.ac_citta , 
+                        telefono: event.ac_telefono , 
+                        data: event.data_status , 
+                        ora: event.ora_status }
                 })
                 this.$store.dispatch ( 'loading' )
             })

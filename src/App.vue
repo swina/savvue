@@ -16,8 +16,8 @@
                 <br/>
                 <span class="text-gray-400">{{ $store.state.navigation.user.ac_gruppo }}</span>
             </div>
-            <div class="p-2 flex flex-row items-center hover:bg-gray-600"><icon icon="settings" class="mr-2" size="sm"/>Impostazioni</div>
-            <div class="p-2 flex flex-row items-center hover:bg-gray-600"><icon icon="person" class="mr-2" size="sm"/>Profilo</div>
+            <div class="p-2 flex flex-row items-center hover:bg-gray-600" @click="$store.dispatch('modal','alert/AlertHome'),user=!user"><icon icon="settings" class="mr-2" size="sm"/>Impostazioni</div>
+            <div class="p-2 flex flex-row items-center hover:bg-gray-600" @click="$store.dispatch('modal','Profilo'),user=!user"><icon icon="person" class="mr-2" size="sm"/>Profilo</div>
             <div class="p-2 flex flex-row items-center hover:bg-gray-600" @click="logout()"><icon icon="logout" class="mr-2" size="sm"/>Esci</div>
           </div>
         </transition>
@@ -37,25 +37,41 @@
             <icon class="animate-spin text-3xl text-gray-500" icon="cached"/>
         </div>
     </div>
+    <transition name="fade">
+      <div id="statusMessage" :class="message?'bg-blue-300':''" class="fixed text-sm text-white bottom-0 left-0 w-screen p-1 shadow" v-if="message">
+        {{ message}}
+      </div>
+    </transition>
+    <transition name="fade">
+      <div id="errorMessage" class="fixed bg-red-500 text-sm text-white bottom-0 left-0 w-screen p-1 shadow" v-if="error">
+        {{ error }}
+      </div>
+    </transition>
+    <Modal v-if="navigation.modal" @close="$store.dispatch('HelloWorld')"></Modal>
   </div>
 </template>
 
 <script>
 import Sidebar from './components/SideBarLeft.vue'
 import Login from '@/views/admin/Login.vue'
+import Modal from '@/components/Modal.vue'
 import { mapState } from 'vuex'
 export default {
   name : 'App',
   components : {
     Sidebar,
-    Login
+    Login,
+    Modal
   },
   data:()=>({
+    message: '',
+    error:'',
     products: null,
     user: false
   }),
   computed: {
-    ...mapState ( ['navigation'] )
+    ...mapState ( ['navigation'] ),
+    
   },
   methods:{
     active(path){
@@ -66,8 +82,44 @@ export default {
       this.$store.dispatch('SetUser',null)
       this.$router.push('/')
       window.location.reload()
+    },
+    setMessage(msg){
+      this.message = msg
+    },
+    resetMessage(){ 
+      console.log ( 'reset message' )
+      window.setTimeout( ()=> {
+        this.$store.dispatch('message','')
+      },3000)
     }
   },
+  watch:{
+    '$store.state.navigation.message':function(msg){
+      this.setMessage ( msg )
+    },
+    message(v){
+        //display message, if null or empty close 
+        if ( v ){
+            window.setTimeout(()=>{ 
+              this.message = ''
+              this.$store.dispatch('message','') 
+            }, 4000)
+        }
+    },
+    '$store.state.navigation.error':function(msg){
+      this.error = msg
+    },
+    error(v){
+        //display message, if null or empty close 
+        if ( v ){
+            window.setTimeout(()=>{ 
+              this.error = ''
+              this.$store.dispatch('error','') 
+            }, 4000)
+        }
+    },
+  },
+  
   beforeMount(){
     this.$api.authenticate()
       .then ( response => {

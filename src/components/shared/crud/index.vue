@@ -7,7 +7,7 @@
                     <label class="text-xs font-bold">{{field.label}}</label>
                     <br>
                     <input v-if="field.type === 'text'" type="text" v-model="record[field.key]"/>
-                    <input v-if="field.type === 'checkbox'" type="checkbox" v-model="field.default?record[field.key]:!record[field.key]"/>
+                    <input v-if="field.type === 'boolean'" type="checkbox" v-model="record[field.key]"/>
                     <select v-if="field.type === 'relation'" v-model="record[field.key]">
                         <option v-if="field.type==='relation'" v-for="(option,i) in tables[field.relation][field.subset]" :key="'opt_' + field.key + '_' + i" :value="!field.simple?option[field.id]:i">
                             {{ !field.simple ? option[field.display] : option }} 

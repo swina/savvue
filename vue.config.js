@@ -33,5 +33,7 @@ module.exports = {
     msTileImage: 'img/icons/mstile-144x144.png'
   },
   productionSourceMap: false,
-  
+  // chainWebpack: config => {			
+  //     config.module.rule('vue').uses.delete('cache-loader');	
+  // }
 }

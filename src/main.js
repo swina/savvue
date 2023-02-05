@@ -31,9 +31,11 @@ import JsonCSV from 'vue-json-csv'
 Vue.component('downloadCsv', JsonCSV)
 
 Vue.config.productionTip = false
+export const eventBus = new Vue();
 
 new Vue({
   router,
   store,
+  eventBus,
   render: h => h(App)
 }).$mount('#app')

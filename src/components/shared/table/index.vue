@@ -8,13 +8,13 @@
                 </template>
                 <!-- <th></th> -->
             </thead>
-            <template v-for="(row,index) in dataset.data">
+            <template v-for="(row,index) in dataset.data" v-if="dataset.data">
                 <tr :key="'row_' + index" :class="'cursor-pointer hover:bg-gray-300 ' + striped(index)"  @click="$emit('selected',row),selectedRow=index">
                     <td class="w-12 py-1 px-1 border-r uppercase">{{(skip)+index+1}}</td>
                     <template v-for="(field,i) in columns">
                         <td v-if="!field.hide && field.view" class="py-0 px-1 border-r" :class="field.class?field.class:'uppercase'" :key="'col_' + index + '_' + i">
                             <span v-if="field.type === 'text' && !field.format">{{row[field.key]}}</span>
-                            <span v-if="field.type === 'text' && field.format === 'date'">
+                            <span v-if="field.type === 'text' && field.format === 'date' && row[field.key]">
                                 {{row[field.key].split('-')[2].split('T')[0]}}-{{row[field.key].split('-')[1]}}-{{row[field.key].split('-')[0]}}
                             </span>
                             <span v-if="field.relation">
@@ -77,7 +77,11 @@
                     <option value="">Seleziona ...</option>
                     <option v-for="(field,i) in searchArray"  :value="searchField!='simple'?field[searchField]:i">{{ searchField==='simple'?field:field[searchText] }}</option>
                 </select>
-                <input v-if="!searchArray" type="text" class="w-20" placeholder="cerca..." v-model="searchValue"/>
+                <input v-if="!searchArray && !searchBoolean" type="text" class="w-20" placeholder="cerca..." v-model="searchValue"/>
+                <select v-model="searchBooleanValue" v-if="searchBoolean">
+                    <option value="1">VERO</option>
+                    <option value="0">FALSO</option>
+                </select>
             </div>
             <button class="text-xs ml-2" @click="searchData"><i class="material-icons text-sm">search</i></button>
             <button class="text-xs ml-2" @click="resetData">Annulla</button>
@@ -114,6 +118,8 @@ export default {
         searchRelation: '',
         searchValue:'',
         searchArray:null,
+        searchBoolean: false,
+        searchBooleanValue: 1,
         searchField: null,
         searchText: null,
         notfound: false
@@ -122,17 +128,22 @@ export default {
         table: { type: String , required: false , default: '' },
         service : { type: String , required: false , default: 'clienti' },
         sort : { type: String , required: false, default : '' },
+        filter: { required: false } 
         //columns: { type: Array, required: true , default:()=>[] }
     },
     computed:{
         ...mapState ( ['tables','navigation'] ),
         columns(){
             return schema[this.table||this.service].fields
+        },
+        externalQuery(){
+            return this.filter ? this.filter : null
         }
     },
     watch:{
         search ( value ){
             if ( !this.search ) return
+            this.searchBoolean = false
             let field = this.columns.filter ( a => a.key === value )
             if ( field[0].relation ){
                 this.searchField = field[0].simple ? 'simple' : field[0].key
@@ -141,9 +152,17 @@ export default {
             } else {
                 this.searchArray = null
             }
+            console.log  ( field )
+            if ( field[0].type === 'checkbox' ){
+                this.searchValue = 1
+                this.searchBoolean = true
+            }
         },
         order ( value ){
             this.getData()
+        },
+        filter ( value ){
+            this.getData()  
         }
     },
     methods:{
@@ -167,7 +186,10 @@ export default {
             return null
         },
         getData(){
-            
+            if ( this.filter ){
+                this.searchData ( this.filter )
+                return
+            }
             let vm = this
             this.notfound = false
             let sort = schema[this.service||this.table].sort
@@ -198,7 +220,6 @@ export default {
             if ( this.$attrs.params ){
                  query.query['params'] = this.$attrs.params
             }
-            console.log ( query )
             this.$store.dispatch ( 'loading' )
             this.$api.service(this.service).find(query).then ( response => {
                 if ( this.service != 'status' ){
@@ -207,12 +228,14 @@ export default {
                     this.dataset = response[0]
                 }
                 this.$store.dispatch ( 'loading' )
+                console.log ( "Dataset=>" , this.dataset )
             }).catch ( error =>{
                 this.$store.dispatch ( 'loading' )
                 console.log ( error )
             })
         },
         searchData(){
+            
             let target = 'tbl_' + this.service||this.table
             this.notfound = false
             let qry = {
@@ -220,27 +243,50 @@ export default {
                 $skip : this.$store.getters.skip,
                 $sort : this.$store.getters.clienti_sort,
             }
+            
             if ( target != 'tbl_clienti' ){
-                qry[target + '.' + this.search] = { 
-                    $like : this.searchValue + '%' 
+                let field = this.columns.filter(a=>a.key===this.search)[0]
+                if ( target = 'tbl_agenti' ){
+                    target = 'tbl_persone'
                 }
+                if ( field.type != 'checkbox' ){
+                    qry[target + '.' + this.search] = { 
+                        $like : this.searchValue + '%' 
+                    }
+                } else {
+                    qry[target + '.' + this.search] = parseInt(this.searchBooleanValue)
+                 }
             } else {
-                qry['search'] = {
-                    table: target,
-                    field: this.search,
-                    value: this.searchValue
-                }
+                
+                    qry['search'] = {
+                        table: target,
+                        field: this.search,
+                        value: this.searchValue
+                    }
+                
             }
-            let query = {
-                query : qry
-            }
-            console.log ( query )
-            this.$store.dispatch ( 'loading' )
-            this.$api.service(this.service).find(query).then ( response => {
-                this.dataset = response
-                response.data.length ? this.notfound = false : this.notfound = true
+            let query
+            this.filter ? 
+                query = this.filter :
+                    query = { query : qry }
+            console.log ( 'SEARCH QUERY IS => ' , query )
+            // if ( query && query.qry.search.field && query.qry.search.value ){
+                
                 this.$store.dispatch ( 'loading' )
-            })
+                this.$api.service(this.service).find(query).then ( response => {
+                    response.data.length ? this.notfound = false : this.notfound = true
+                    this.$store.dispatch ( 'loading' )
+                    this.dataset = response
+                    console.log ( "Search result => " ,this.dataset , response )
+                }).catch ( error => {
+                    this.$store.dispatch ( 'loading' )
+                    console.log ( error )
+                    this.$store.dispatch ( 'error' , 'Errore nella ricerca. Contattare l\'assistenza')
+                })
+            // } else {
+            //     this.getData()
+            // }
+
         },
         nextPage(){
             this.skip = this.skip + 20
@@ -260,7 +306,7 @@ export default {
         },
         downloadCSV(){
             if ( ! this.$attrs.csv ) 
-                this.json_data = JSON.stringify(this.dataset.data)
+                this.json_data = this.dataset.data
 
             if ( this.$attrs.csv )
                 this.json_data = JSON.stringify(this.tables[this.$attrs.csv].data )

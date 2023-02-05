@@ -55,7 +55,7 @@
                         <td class="w-8 py-1 px-1 border-r uppercase">{{(skip)+index+1}}</td>
                         
                         <template v-for="(field,i) in columns.fields">
-                            <td class="py-0 px-1 border-r uppercase bg-opacity-50" :key="'col_' + index + '_' + i" v-if="!field.hide"  :style="field.key === 'ac_processo' ? stile(row.ac_colore,field.style):''">
+                            <td class="py-0 px-1 uppercase bg-opacity-50 text-shadow" :key="'col_' + index + '_' + i" v-if="!field.hide"  :style="field.key === 'ac_processo' ? stile(row.ac_colore,field.style):''">
                                 <span v-if="field.style === 'text'">{{ row[field.key] }}</span>
                                 <!-- <span v-if="field.type === 'text' && !field.format">{{row[field.key]}}</span>
                                 <span v-if="field.type === 'text' && field.format === 'date'">
@@ -212,7 +212,7 @@ export default {
             console.log ( this.navigation.user.int_livello )
             const query = {
                 skip: this.skip,
-                limit: this.limit,
+                $limit: this.limit,
                 order: this.order,
                 filter: this.filter,
                 search: this.search,
@@ -226,6 +226,8 @@ export default {
                 this.status = response[0]
                 this.$store.dispatch ( 'setModel' , ['status' , Object.keys ( response[0][0] )] )
                 this.$store.dispatch ( 'setStatus' , response[0] )
+                this.currentRow = this.status[0].id_cliente
+                this.qryCustomer(this.currentRow)
             })
         },
         
@@ -245,14 +247,14 @@ export default {
         stile(colore,stile){
             
             if ( stile === 'text' ){
-                return 'background-color:#' + colore.replace('#','') 
+                return 'color:white;background-color:#' + colore.replace('#','') 
             }
             return 'width:30px;'
         },
         qryCustomer(id){
             this.cliente = null
             console.log ( id )
-            this.$api.service('cliente/status').find({query:{id_cliente:id}}).then ( response => {
+            this.$api.service('cliente/status').find({ query : {id_cliente:id}}).then ( response => {
                 console.log ( "Status Cliente=" , response )
                 this.index = -1
                 this.cliente = response
@@ -275,24 +277,7 @@ export default {
     },
     mounted(){
         this.loading = true
-        // window.addEventListener("keydown", e => {
-        //     console.log ( e )
-        //     if ( e.keyCode === 'ArrowDown' ){
-        //         this.currentRow++
-        //         this.id_cliente = this.status[this.currentRow]['id_cliente']
-        //     }
-        //     if ( e.keyCode === 'ArrowDown' ){
-        //         this.currentRow--
-        //     }
-        //     if ( e.keyCode === 33 ){
-        //         this.id_cliente = null
-        //         this.skip > 0 ? this.skip -= this.limit : null
-        //     }
-        //     if ( e.keyCode === 34 ){
-        //         this.id_cliente = null
-        //         this.skip += this.limit
-        //     }
-        // })
+        
     }
 }
 </script>

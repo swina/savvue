@@ -1,21 +1,36 @@
 <template>
-    <div class="w-full pb-20" style="padding-bottom:10rem;">
+    <div class="w-full pb-20 " style="padding-bottom:10rem;">
         <transition name="fade">
             <div v-if="edit" class="z-10 mt-8 w-full w-1/2 md:w-1/3 fixed top-0 right-0 h-screen border p-1 bg-gray-400">
-                <ui-crud v-if="selected" :fields="columns" title="Cliente" :record="selected"></ui-crud>
-                <div class="w-full flex flex-row justify-end">
-                    <button class="btn-green" @click="edit=!edit">Salva</button>
+                <ui-crud v-if="selected" :fields="fields" title="Cliente" :record="selected"></ui-crud>
+                <div class="w-full flex flex-row justify-end" v-if="!confirmDelete">
+                    <button class="btn-red" @click="deleteConfirmation">Elimina</button>
+                    <button class="btn-green" @click="saveCustomer()">Salva</button>
                     <button @click="edit=!edit">Chiudi</button>
                 </div>
+                    <div v-if="confirmDelete" class="bg-gray-200 p-2">
+                        Confermi la cancellazione definitiva di questo record?
+                        <button class="btn-red" @click="confirmDelete=!confirmDelete">Annulla</button>
+                        <button class="btn-green" @click="deleteCustomer()">Conferma</button>
+                        <div v-if="confirmMessage">{{ confirmMessage }}</div>
+                    </div>
             </div>
         </transition>
-        <ui-table service="clienti" :pagination="true" @selected="what"></ui-table>
+        <div class="flex p-1">
+            <button class="bg-blue-400 hover:bg-lime-400" @click="createCustomer">Crea</button>
+            <button class="hover:bg-lime-400" :class="importati?'bg-lime-400':''" @click="filterImported">Importati</button>
+            <button class="hover:bg-lime-400" :class="assegnati?'bg-lime-400':''" @click="filterAssegnati">Non Assegnati</button>
+        </div>
+        <div class="overflow-y-auto min-h-screen">
+            <ui-table service="clienti" :pagination="true" @selected="what" :filter="query?query:null"></ui-table>
+        </div>
     </div>
 </template>
 
 <script>
 import UiTable from '@/components/shared/table'
 import UiCrud from '@/components/shared/crud'
+import schema from '@/plugins/schema'
 
 export default {
     name: 'CRMCustomers', 
@@ -27,7 +42,9 @@ export default {
         customers: null,
         data: null,
         selected:null,
+        newCustomer: false,
         edit:false,
+        query: null,
         columns:[
             {
                 key: 'ac_cognome',
@@ -83,7 +100,7 @@ export default {
                 searchable: false
             },
             {
-                key: 'ac_celluare',
+                key: 'ac_cellulare',
                 label: 'Mobile',
                 type: 'text',
                 view: false,
@@ -165,8 +182,18 @@ export default {
             sortable: ['id_cliente'],
             filterable: ['id_cliente']
         },
-        skip: 0
+        skip: 0,
+        assegnati: false,
+        importati: false,
+        confirmDelete: false,
+        confirmMessage: ''
     }),
+    computed: {
+        fields() {
+            return schema.clienti.fields
+        }
+    },
+    
     methods:{
         striped(i){
             return i % 2 ? 'bg-gray-200' : ''
@@ -203,11 +230,103 @@ export default {
         },
         what(e){
             this.edit = true
+            this.newCustomer = false
             this.selected = e
+        },
+        createCustomer(){
+            this.selected = {}
+            this.columns.forEach ( col => {
+                console.log ( col.key )
+                this.selected[col.key] = ''
+            })
+            this.newCustomer = true
+            this.edit = true
+        },
+        saveCustomer(){
+            let data = {}
+            this.columns.forEach ( col => {
+                data[col.key] = this.selected[col.key]
+            })
+            console.log ( data )
+            let currDate = new Date()
+            if ( data.id_agente ){
+                data.bl_attivo = 1
+            }
+            if ( this.newCustomer ){
+                data.dt_data_registrazione = currDate.toISOString().split('T')[0] + ' ' + currDate.toISOString().split('T')[1]
+                this.$api.service('clienti').create ( data ).then (  resp => {
+                    console.log ( resp )
+                }).catch ( err => {
+                    console.log ( err )
+                })
+                
+                console.log ( 'create new customer' )
+            } else {
+                data['dt_data_modifica'] = currDate.toISOString().split('T')[0] + ' ' + currDate.toISOString().split('T')[1]
+                this.$api.service('clienti').patch ( this.selected.id_cliente , data ).then ( resp => {
+                    console.log ( resp )
+                })
+           }
+           
+        },
+        deleteConfirmation(){
+            this.confirmDelete =! this.confirmDelete
+        },
+        deleteCustomer(){
+            console.log ( this.selected.id_cliente , this.selected.ac_cognome )
+            this.$api.service('clienti').patch(this.selected.id_cliente,{bl_cancellato:1,bl_attivo:0}).then ( resp => {
+                this.confirmDelete =! this.confirmDelete 
+                this.selected = null
+                this.edit = false
+            }).catch ( error => {  
+                console.log ( error )
+                this.confirmMessage = 'Errore nella cancellazione. Contattare l\'amministratore'
+            })
+            
+        },
+        filterImported(){
+            this.importati =! this.importati
+            this.assegnati = false
+            if ( this.query ) {
+                this.query = null
+                return
+            }
+            let qry = {
+                query : {
+                    search : {
+                        table: 'tbl_clienti',
+                        field: 'bl_attivo',
+                        value: 0
+                    }
+                }
+            }
+            this.query = qry
+        },
+        filterAssegnati(){
+            this.assegnati =! this.assegnati
+            this.importati = false
+            if ( this.query ) {
+                this.query = null
+                return
+            }
+            let qry = {
+                query : {
+                    search : {
+                        table: 'tbl_clienti',
+                        field: 'id_agente',
+                        value: 0
+                    }
+                }
+            }
+            this.query = qry
         }
     },
 
     mounted(){
+        // this.$api.service('clienti').on('patched' , (message) => console.log ( message))
+        // this.$api.service('clienti').on('created').then ( resp => {
+        //     this.query = null
+        // })
         // let query = {
         //     $skip : this.$store.getters.skip,
         //     $limit: 20

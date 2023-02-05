@@ -30,7 +30,7 @@
                         </template>
                     </div>
                     <div class="w-full flex flex-row justify-end">
-                        <button class="btn-green" @click="agente=null">Salva</button>
+                        <button class="btn-green" @click="save">Salva</button>
                         <button @click="record=null">Chiudi</button>
                     </div>
                 </div>
@@ -59,6 +59,15 @@ export default {
             this.permissions = record.ac_permissions.split(',')
             let macrogruppi = this.$store.state.tables.macrogruppi
 
+        },
+        save(){
+            console.log ( this.record )
+            this.$api.service('processi').patch ( this.record.id_processo , this.record ).then ( response => {
+                this.$store.dispatch('message','Processo aggiornato')
+                console.log ( response )
+            }).catch ( error => {
+                this.$store.dispatch('error','Errore contattare l\'assistenza')
+            })
         }
     }
 }
