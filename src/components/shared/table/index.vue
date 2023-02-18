@@ -56,8 +56,9 @@
         <div v-if="dataset && pagination" class="w-full flex flex-row mt-2 items-center text-xs text-left">
             <button class="btn-light mr-2 hover:bg-gray-500 text-xs p-0" @click="skip>0?prevPage():null"><i class="material-icons">keyboard_arrow_left</i></button>
             <button class="btn-light mr-2 hover:bg-gray-500 text-xs p-0" @click="nextPage"><i class="material-icons">keyboard_arrow_right</i></button>
-            <button class="btn-light mr-2">Record {{skip+1}}-{{skip+20}} di {{dataset.total}}</button>
-            <button class="btn-light">Pagina {{parseInt(skip/20)+1}} di {{parseInt(dataset.total/20)+1}}</button>
+            <button class="btn-light mr-2 text-xs">{{skip+1}}-{{parseInt(skip+limit)}} di {{dataset.total}}</button>
+            <button class="btn-light text-xs">Pg {{parseInt(skip/limit)+1}} di {{parseInt(dataset.total/limit)+1}}</button>
+            Righe <input type="number" v-model="limit" max="200" title="Massimo 200 righe" @change="getData" class="mx-1 w-14 p-2"/><button class="btn-light" @click="getData">OK</button>
             <icon v-if="download" icon="download" title="Scarica CSV" @click="downloadCSV"/>
             <download-csv
                 v-if="json_data"
@@ -122,13 +123,17 @@ export default {
         searchBooleanValue: 1,
         searchField: null,
         searchText: null,
-        notfound: false
+        notfound: false,
+        exportData: null
     }),
     props: {
         table: { type: String , required: false , default: '' },
         service : { type: String , required: false , default: 'clienti' },
         sort : { type: String , required: false, default : '' },
-        filter: { required: false } 
+        filter: { required: false } ,
+        refresh: { required: false } ,
+        exportTable: { required: false , default: false },
+        exportConfig: { required: false  }
         //columns: { type: Array, required: true , default:()=>[] }
     },
     computed:{
@@ -138,7 +143,8 @@ export default {
         },
         externalQuery(){
             return this.filter ? this.filter : null
-        }
+        },
+        
     },
     watch:{
         search ( value ){
@@ -163,6 +169,21 @@ export default {
         },
         filter ( value ){
             this.getData()  
+        },
+        refresh ( value ){
+            if ( value ){
+                console.log ( 'refresh =>' , value )
+                this.getData()
+                this.$emit('refreshed')
+            }
+        },
+        exportTable (v){
+            console.log ( 'export' , v )
+            //if ( value ){
+                this.limit = this.exportConfig.limit
+                this.offset = this.exportConfig.offset
+                this.getData()
+            //}
         }
     },
     methods:{
@@ -200,16 +221,16 @@ export default {
             }
             let query = {
                 query : { 
-                    $limit: this.limit,
-                    $skip : this.skip,
+                    limit: this.exportTable ? this.exportConfig.limit : this.limit,
+                    skip : this.exportTable ? this.exportConfig.offset : this.skip,
                     sort : sort//schema[this.service||this.table].sort
                 }
             }
             if ( !this.order ){
                 query = {
                     query : { 
-                        $limit: this.limit,
-                        $skip : this.skip,
+                        limit: this.exportTable ? this.exportConfig.limit : this.limit,
+                        skip : this.exportTable ? this.exportConfig.offset : this.skip,
                         $sort : sort
                     }
                 }
@@ -221,7 +242,11 @@ export default {
                  query.query['params'] = this.$attrs.params
             }
             this.$store.dispatch ( 'loading' )
+            console.log ( query )
             this.$api.service(this.service).find(query).then ( response => {
+                if ( this.exportTable ){
+                    this.exportData = response
+                }
                 if ( this.service != 'status' ){
                     this.dataset = response
                 } else {
@@ -239,7 +264,7 @@ export default {
             let target = 'tbl_' + this.service||this.table
             this.notfound = false
             let qry = {
-                $limit: 20,
+                $limit: this.limit,
                 $skip : this.$store.getters.skip,
                 $sort : this.$store.getters.clienti_sort,
             }

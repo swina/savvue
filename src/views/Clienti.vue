@@ -3,16 +3,21 @@
         <transition name="fade">
             <div v-if="edit" class="z-10 mt-8 w-full w-1/2 md:w-1/3 fixed top-0 right-0 h-screen border p-1 bg-gray-400">
                 <ui-crud v-if="selected" :fields="fields" title="Cliente" :record="selected"></ui-crud>
-                <div class="w-full flex flex-row justify-end" v-if="!confirmDelete">
+                <div class="w-full flex flex-row justify-end" v-if="!confirmDelete && !notValidData">
                     <button class="btn-red" @click="deleteConfirmation">Elimina</button>
                     <button class="btn-green" @click="saveCustomer()">Salva</button>
                     <button @click="edit=!edit">Chiudi</button>
                 </div>
                     <div v-if="confirmDelete" class="bg-gray-200 p-2">
+                        Attenzione questa operazione e' irriversibile !!!
                         Confermi la cancellazione definitiva di questo record?
                         <button class="btn-red" @click="confirmDelete=!confirmDelete">Annulla</button>
                         <button class="btn-green" @click="deleteCustomer()">Conferma</button>
                         <div v-if="confirmMessage">{{ confirmMessage }}</div>
+                    </div>
+                    <div v-if="notValidData" class="bg-gray-200 p-2">
+                        Campi obbligatori devono essere valorizzati
+                        <button class="btn-green" @click="notValidData=!notValidData">OK</button>
                     </div>
             </div>
         </transition>
@@ -20,9 +25,28 @@
             <button class="bg-blue-400 hover:bg-lime-400" @click="createCustomer">Crea</button>
             <button class="hover:bg-lime-400" :class="importati?'bg-lime-400':''" @click="filterImported">Importati</button>
             <button class="hover:bg-lime-400" :class="assegnati?'bg-lime-400':''" @click="filterAssegnati">Non Assegnati</button>
+            <!-- <button class="hover:bg-lime-400" :class="assegnati?'bg-lime-400':''" @click="exportClienti">Esporta</button> -->
         </div>
-        <div class="overflow-y-auto min-h-screen">
-            <ui-table service="clienti" :pagination="true" @selected="what" :filter="query?query:null"></ui-table>
+        <div class="overflow-y-auto min-h-screen h-screen pb-40">
+            <ui-table service="clienti" :pagination="true" @selected="what" :filter="query?query:null" :refresh="refresh" @refreshed="refresh=!refresh" :exportTable="exportTable" :exportConfig="exportData"></ui-table>
+        </div>
+        <div v-if="exportData.show" class="z-10 mt-8 w-full w-1/2 md:w-1/3 fixed top-0 right-0 h-screen border p-1 bg-gray-400">
+            <div class="flex flex-col bg-gray-100">
+                <div class="bg-gray-300 p-2">Esporta dati</div>
+                <div class="flex flex-col my-2 px-20">
+                    Records <input type="number" v-model="exportData.limit"/>
+                </div>
+                <div class="flex flex-col my-2 px-20">
+                    Parti da <input type="number" v-model="exportData.offset"/>
+                </div>
+                <div class="flex px-20 py-2">
+                    <button class="btn-green" @click="exportCmd">Esporta</button>
+                    <button @click="exportData.show=!exportData.show">Chiudi</button>
+                </div>
+                <div class="flex text-xs py-2 px-20">
+                    I dati verranno esportati secondo i filtri correnti.
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -183,10 +207,18 @@ export default {
             filterable: ['id_cliente']
         },
         skip: 0,
+        refresh: false,
         assegnati: false,
         importati: false,
         confirmDelete: false,
-        confirmMessage: ''
+        confirmMessage: '',
+        notValidData: false,
+        exportTable: false,
+        exportData: {
+            show: false,
+            offset: 0,
+            limit: 100
+        }
     }),
     computed: {
         fields() {
@@ -242,7 +274,7 @@ export default {
             this.newCustomer = true
             this.edit = true
         },
-        saveCustomer(){
+        async saveCustomer(){
             let data = {}
             this.columns.forEach ( col => {
                 data[col.key] = this.selected[col.key]
@@ -252,6 +284,7 @@ export default {
             if ( data.id_agente ){
                 data.bl_attivo = 1
             }
+            if ( !this.validateData(data) ) return 
             if ( this.newCustomer ){
                 data.dt_data_registrazione = currDate.toISOString().split('T')[0] + ' ' + currDate.toISOString().split('T')[1]
                 this.$api.service('clienti').create ( data ).then (  resp => {
@@ -259,14 +292,15 @@ export default {
                 }).catch ( err => {
                     console.log ( err )
                 })
-                
+                this.refresh = true
                 console.log ( 'create new customer' )
             } else {
                 data['dt_data_modifica'] = currDate.toISOString().split('T')[0] + ' ' + currDate.toISOString().split('T')[1]
                 this.$api.service('clienti').patch ( this.selected.id_cliente , data ).then ( resp => {
                     console.log ( resp )
                 })
-           }
+            }
+           
            
         },
         deleteConfirmation(){
@@ -274,10 +308,12 @@ export default {
         },
         deleteCustomer(){
             console.log ( this.selected.id_cliente , this.selected.ac_cognome )
-            this.$api.service('clienti').patch(this.selected.id_cliente,{bl_cancellato:1,bl_attivo:0}).then ( resp => {
+            this.$api.service('clienti').remove(this.selected.id_cliente).then(resp=>{
+            // this.$api.service('clienti').patch(this.selected.id_cliente,{bl_cancellato:1,bl_attivo:0}).then ( resp => {
                 this.confirmDelete =! this.confirmDelete 
                 this.selected = null
                 this.edit = false
+                this.refresh = true
             }).catch ( error => {  
                 console.log ( error )
                 this.confirmMessage = 'Errore nella cancellazione. Contattare l\'amministratore'
@@ -296,7 +332,7 @@ export default {
                     search : {
                         table: 'tbl_clienti',
                         field: 'bl_attivo',
-                        value: 0
+                        value: -1
                     }
                 }
             }
@@ -319,6 +355,25 @@ export default {
                 }
             }
             this.query = qry
+        },
+        validateData(data){
+            let validate = true
+            this.fields.forEach ( field => {
+                if ( field.hasOwnProperty('required') && ( typeof data[field.key] === 'undefined' || data[field.key] === '' ) ) {
+                    console.log ( field, data[field.key])
+                    
+                    validate = false
+                    this.notValidData = true
+                }
+            })
+            console.log ( this.notValidData )
+            return validate
+        },
+        exportClienti(){
+            this.exportData.show = true
+        },
+        exportCmd(){
+            this.exportTable =! this.exportTable        
         }
     },
 

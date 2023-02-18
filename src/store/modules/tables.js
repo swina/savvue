@@ -80,7 +80,8 @@ const tables = {
             status : null,
             clienti: null,
             agenti: null
-        }
+        },
+        exportStatus:false
     },
     mutations: {
         agenti(state,agenti){
@@ -97,6 +98,9 @@ const tables = {
         },
         models ( state , [ table , payload ] ){
             state.models[table] = payload
+        },
+        exportStatus ( state , status ){
+            state.exportStatus = status
         }
     },
     actions: {
@@ -114,6 +118,9 @@ const tables = {
         },
         setModel ( { commit } , [table,payload] ){
             commit ( 'models' , [table,payload] )
+        },
+        setExport ( { commit } , exportStatus ){
+            commit ( 'exportStatus' , exportStatus )
         }
     }
 

@@ -272,7 +272,7 @@ export default {
               bl_attivo: -1,
               dt_data_registrazione: new Date().toISOString().slice(0, 19).replace('T', ' ')
             }
-            this.$api.service('contact').create ( obj ).then ( response => {
+            this.$api.service('clienti').create ( obj ).then ( response => {
               console.log ( response )
               vm.saved = true
               vm.error = false
